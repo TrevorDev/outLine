@@ -18,13 +18,38 @@ function homeCtrl($scope, $http) {
 	var s = new FLIXI.Screen($("#myCanvas"));
 	var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
 	img.rotation = 45 * (Math.PI/180);
+	var graphics = new PIXI.Graphics();
+	s.container.addChild(graphics);
 	s.container.addChild(img)
+
+	var lines = [];
+	createLines(lines, new FLIXI.Line(new PIXI.Point(0,10), new PIXI.Point(400,10)), 5, 0);
+
 	s.runAnimateLoop(function(){
+		graphics.clear();
+		$.each(lines, function(i, line) {
+			line.draw(graphics);
+        });
 				//Move camera
 				//s.container.position.y++;
 		img.x++;
 		console.log("hit");
 	});
+}
+
+var createLines = function(lines,line, maxDepth, depth){
+	lines.push(line)
+	depth++;
+	if(depth>maxDepth){
+		return;
+	}
+	var line1 = line.clone();
+	line1.move(0,10)
+	line1.scale(0.4)
+	var line2 = line1.clone();
+	line2.move(line.length()/2+line.length()/10 ,0);
+	createLines(lines,line1, maxDepth, depth);
+	createLines(lines,line2, maxDepth, depth);
 }
 </script>
 {% endblock %}

@@ -2,7 +2,7 @@ var FLIXI = {
 	Screen: function(canvas){
 		this.renderer = PIXI.autoDetectRenderer(canvas.width(), canvas.height(), canvas[0], true);
 		this.stage = new PIXI.Stage();
-		this.container = new PIXI.SpriteBatch();
+		this.container = new PIXI.DisplayObjectContainer(); //new PIXI.SpriteBatch();
 		this.stage.addChild(this.container);
 
 		this.render = function(){
@@ -10,10 +10,10 @@ var FLIXI = {
 		}
 
 		this.runAnimateLoop = function(x){
-			var cur = this;
+			var scrn = this;
 			var loop = function(){
 				x();
-				cur.render();
+				scrn.render();
 				requestAnimFrame(loop);
 			}
 			loop();
@@ -27,5 +27,33 @@ var FLIXI = {
 			sprite.height=height;
 		}
 		return sprite
+	},
+	Line: function(a,b){
+		this.start = a;
+		this.end = b;
+		this.draw = function(graphics){
+			graphics.lineStyle(1, 0xcccccc, 1);
+			graphics.moveTo(this.start.x, this.start.y);
+			graphics.lineTo(this.end.x, this.end.y);
+		}
+		this.clone = function(){
+			return new FLIXI.Line(this.start.clone(), this.end.clone())
+		}
+		this.scale = function(x){
+			var disX = this.end.x - this.start.x
+			var disY = this.end.y - this.start.y
+			this.end = new PIXI.Point(this.start.x+(disX*x), this.start.y+(disY*x));
+		}
+		this.move = function(x,y){
+			this.end.x+=x;
+			this.end.y+=y;
+			this.start.x+=x;
+			this.start.y+=y;
+		}
+		this.length = function(){
+			var disX = this.end.x - this.start.x
+			var disY = this.end.y - this.start.y
+			return Math.sqrt(disX*disX+disY*disY)
+		}
 	}
 }
