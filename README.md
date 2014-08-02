@@ -1,9 +1,9 @@
-node-startingLine
+outLine
 ============
 
-NodeJS starting skeleton
+Testing ground for js animation using pixijs
 
-##Starting Line uses:
+##This project uses uses:
 - Frontend:
 	- Bootstrap (http://getbootstrap.com/)
 	- AngularJS (http://angularjs.org/)
