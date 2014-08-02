@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="container-wide" ng-controller="homeCtrl">
+
+	<canvas id="myCanvas" width="500" height="200" style="background-color: grey;"></canvas>
+
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/input.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<script type="text/javascript">
+function homeCtrl($scope, $http) {
+	var s = new FLIXI.Screen($("#myCanvas"));
+	var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
+	img.rotation = 45 * (Math.PI/180);
+	s.container.addChild(img)
+	s.runAnimateLoop(function(){
+				//Move camera
+				//s.container.position.y++;
+		img.x++;
+		console.log("hit");
+	});
+}
+</script>
+{% endblock %}
