@@ -18,6 +18,11 @@ var FLIXI = {
 			}
 			loop();
 		}
+
+		this.resize = function(x, y){
+			this.renderer.view.style.width = x + "px"
+			this.renderer.view.style.height = y + "px"
+		}
 	},
 	createSprite: function(link, width, height){
 		var texture = new PIXI.Texture.fromImage(link)

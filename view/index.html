@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
 {% block body %}
 <div class="container-wide" ng-controller="homeCtrl">
-
-	<canvas id="myCanvas" width="500" height="200" style="background-color: grey;"></canvas>
-
+<center>
+	<canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>
+</center>
 </div>
 {% endblock %}
 
@@ -24,6 +24,8 @@ function homeCtrl($scope, $http) {
 
 	var lines = [];
 	createLines(lines, new FLIXI.Line(new PIXI.Point(0,10), new PIXI.Point(400,10)), 5, 0);
+
+	//s.resize(1920,1080)
 
 	s.runAnimateLoop(function(){
 		graphics.clear();
