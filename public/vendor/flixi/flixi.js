@@ -23,6 +23,22 @@ var FLIXI = {
 			this.renderer.view.style.width = x + "px"
 			this.renderer.view.style.height = y + "px"
 		}
+
+		var thisScreen = this;
+		this.camera = {
+			move: function(x,y){
+				thisScreen.container.position.x+=x;
+				thisScreen.container.position.y+=y;
+			},
+			setPos: function(x, y){
+				thisScreen.container.position.x=x;
+				thisScreen.container.position.y=y;
+			},
+			zoom: function(x){
+					thisScreen.container.scale.x *= x;
+				    thisScreen.container.scale.y *= x;
+			}
+		}
 	},
 	createSprite: function(link, width, height){
 		var texture = new PIXI.Texture.fromImage(link)
