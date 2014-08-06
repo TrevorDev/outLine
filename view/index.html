@@ -32,9 +32,24 @@ function homeCtrl($scope, $http) {
 		$.each(lines, function(i, line) {
 			line.draw(graphics);
         });
+        //s.camera.zoom(1.01);
 		img.x++;
-		console.log("hit");
 	});
+
+	$("#myCanvas").on("mousewheel", function(e){
+		e.preventDefault();
+		console.log(e.originalEvent.deltaY)
+		if(e.originalEvent.wheelDelta /120 < 0){
+			s.camera.zoom(0.97);
+		}else{
+			s.camera.zoom(1.03);
+		}
+		
+	})
+
+	$("#myCanvas").on("mousemove", function(e){
+		console.log(e)
+	})
 }
 
 var createLines = function(lines,line, maxDepth, depth){
