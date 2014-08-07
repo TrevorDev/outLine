@@ -23,7 +23,7 @@ function homeCtrl($scope, $http) {
 	s.container.addChild(img)
 
 	var lines = [];
-	createLines(lines, new FLIXI.Line(new PIXI.Point(0,10), new PIXI.Point(400,10)), 5, 0);
+	createLines(lines, new FLIXI.Line(new PIXI.Point(0,100), new PIXI.Point(400,100)), 10, 0);
 
 	//s.resize(1920,1080)
 
@@ -38,7 +38,6 @@ function homeCtrl($scope, $http) {
 
 	$("#myCanvas").on("mousewheel", function(e){
 		e.preventDefault();
-		console.log(e.originalEvent.deltaY)
 		if(e.originalEvent.wheelDelta /120 < 0){
 			s.camera.zoom(0.97);
 		}else{
@@ -49,6 +48,8 @@ function homeCtrl($scope, $http) {
 
 	$("#myCanvas").on("mousemove", function(e){
 		console.log(e)
+		var rect = $("#myCanvas").getBoundingClientRect();
+        console.log(e.clientX - rect.left, e.clientY - rect.top);
 	})
 }
 
@@ -59,10 +60,12 @@ var createLines = function(lines,line, maxDepth, depth){
 		return;
 	}
 	var line1 = line.clone();
-	line1.move(0,10)
-	line1.scale(0.4)
+	line1.start = line.end.clone();
+	line1.end = line.end.clone();
+	line1.end.x += 30
 	var line2 = line1.clone();
-	line2.move(line.length()/2+line.length()/10 ,0);
+	line1.end.y-=5
+	line2.end.y+=100
 	createLines(lines,line1, maxDepth, depth);
 	createLines(lines,line2, maxDepth, depth);
 }
