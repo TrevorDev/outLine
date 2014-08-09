@@ -32,6 +32,7 @@ app.use(router(app))
 
 //PAGE ROUTES
 app.get('/', defaultPageLoad('index'))
+app.get('/3d', defaultPageLoad('3d'))
 app.get(/\/public\/*/, serve('.'))
 
 //API ROUTES

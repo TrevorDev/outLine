@@ -1,4 +1,11 @@
 var FLIXI = {
+	RunEveryFrame: function(x){
+		var loop = function(){
+			x();
+			requestAnimFrame(loop);
+		}
+		loop();
+	},
 	Screen: function(canvas){
 		this.renderer = PIXI.autoDetectRenderer(canvas.width(), canvas.height(), canvas[0], true);
 		this.stage = new PIXI.Stage();
@@ -11,12 +18,10 @@ var FLIXI = {
 
 		this.runAnimateLoop = function(x){
 			var scrn = this;
-			var loop = function(){
+			FLIXI.RunEveryFrame(function(){
 				x();
 				scrn.render();
-				requestAnimFrame(loop);
-			}
-			loop();
+			})
 		}
 
 		this.resize = function(x, y){

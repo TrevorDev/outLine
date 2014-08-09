@@ -1,0 +1,138 @@
+{% extends 'layout.html' %} {% block body %}
+<div class="container-wide" ng-controller="homeCtrl">
+    <center>
+        <canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>
+        <div id="container"></div>
+    </center>
+</div>
+{% endblock %} {% block script %}
+<script src="/public/vendor/flixi/stats.js"></script>
+<script src="/public/vendor/flixi/detector.js"></script>
+<script src="/public/vendor/flixi/three.js"></script>
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/input.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<script type="text/javascript">
+function homeCtrl($scope, $http) {
+
+    if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+    var container = document.createElement( 'div' );
+    document.body.appendChild( container );
+    var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+    camera.position.set( 0, 200, 800 );
+    var scene = new THREE.Scene();
+
+
+    // Materials
+    var material = new THREE.MeshLambertMaterial( { color: 0xdddddd, shading: THREE.SmoothShading } );
+    
+
+    var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), material);
+    plane.rotation.x = -Math.PI/2;
+    scene.add(plane);
+
+    // Spheres geometry
+    var geometry = new THREE.SphereGeometry( 70, 32, 16 );
+    var sphere = new THREE.Mesh( geometry, material );
+    scene.add( sphere );
+
+    // Lights
+    var particleLight = new THREE.Mesh( new THREE.SphereGeometry( 4, 8, 8 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) );
+    scene.add( particleLight );
+
+    scene.add( new THREE.AmbientLight( 0x111111 ) );
+
+    /*var directionalLight = new THREE.DirectionalLight(0xffffff, 0.125 );
+    directionalLight.position.x = Math.random() - 0.5;
+    directionalLight.position.y = Math.random() - 0.5;
+    directionalLight.position.z = Math.random() - 0.5;
+    directionalLight.position.normalize();
+    scene.add( directionalLight );*/
+
+    var pointLight = new THREE.PointLight( 0xffffff, 1 );
+    particleLight.add( pointLight );
+
+    //renderer
+    renderer = new THREE.WebGLRenderer( { antialias: true } );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( renderer.domElement );
+
+    //resizing
+    window.addEventListener( 'resize', onWindowResize, false );
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+
+    FLIXI.RunEveryFrame(function(){
+        var timer = 0.0001 * Date.now();
+
+        //camera.position.x = Math.cos( timer ) * 1000;
+        //camera.position.z = Math.sin( timer ) * 1000;
+        //camera.lookAt( scene.position );
+        
+        particleLight.position.x = Math.sin( timer * 7 ) * 300;
+        particleLight.position.y = Math.cos( timer * 5 ) * 400+400;
+        particleLight.position.z = Math.cos( timer * 3 ) * 300;
+        renderer.render( scene, camera )
+    })
+
+
+    /*var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.z = 300;
+    camera.position.y = 90;
+
+    //lighting
+    var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
+        color: 0xffffff
+    }));
+    scene.add(particleLight);
+    var pointLight = new THREE.PointLight(0xffffff, 1);
+    particleLight.add(pointLight);
+    scene.add(new THREE.AmbientLight(0x181818));
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    directionalLight.position.x = 0;
+    directionalLight.position.y = 400;
+    directionalLight.position.z = 0;
+    directionalLight.position.normalize();
+    scene.add(directionalLight);
+
+    //display objects creation
+    var geometry = new THREE.SphereGeometry( 70, 32, 16 );
+
+    var meterial = new THREE.MeshLambertMaterial( { color: 0x666666, emissive: 0x111111, ambient: 0x000000, shading: THREE.SmoothShading } )
+    
+    var mesh = new THREE.Mesh(geometry, meterial);
+    mesh.position.y=70;
+    scene.add(mesh);
+
+    var plane = new THREE.Mesh(new THREE.PlaneGeometry(300, 300, 10, 10), meterial);
+    plane.rotation.x = -Math.PI/2;
+      scene.add(plane);
+
+    //rendering
+    var renderer = new THREE.CanvasRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    FLIXI.RunEveryFrame(function(){
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.01;
+        var timer = 0.0001 * Date.now();
+        particleLight.position.x = Math.sin(timer * 7) * 300;
+        particleLight.position.y = Math.cos(timer * 5) * 400;
+        particleLight.position.z = Math.cos(timer * 3) * 300;
+
+        renderer.render(scene, camera);
+    })*/
+}
+</script>
+{% endblock %}
