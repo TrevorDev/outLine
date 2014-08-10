@@ -59,10 +59,39 @@ var server = http.createServer(app.callback())
 
 //SOCKETIO
 var io = require('socket.io').listen(server);
+var roomNumber = 0;
+var rooms = {}
 io.on('connection', function(socket){
-  console.log('a user connected');
+
+	//JOIN ROOM
+  var roomName = "room"+roomNumber
+  if(!rooms[roomName]){
+  	rooms[roomName] = {
+  		users: {}
+	  }
+  }
+  socket.emit('otherUsers', {users: rooms[roomName].users})
+  socket.broadcast.to(roomName).emit('playerJoined', {id: socket.id, name: ""})
+  rooms[roomName].users[socket.id] = {userName: "test"}
+  socket.join(roomName)
+
+  if(Object.keys(rooms[roomName].users).length >= 2){
+  	roomNumber++;
+  	room = io.sockets.adapter.rooms[roomName];
+  	var i = 0;
+  	for (var id in room) {
+    	io.sockets.adapter.nsp.connected[id].emit("gameStart", {playerNum: i})
+    	i++
+    }
+  }
+
+  socket.on('updatePos', function(data){
+  	socket.broadcast.to(roomName).emit('updatePos', {id: socket.id, pos: data.pos})
+  })
+
   socket.on('disconnect', function(){
-    console.log('user disconnected');
+  	socket.broadcast.to(roomName).emit('playerLeft', {id: socket.id})
+  	delete rooms[roomName].users[socket.id];
   });
 });
 

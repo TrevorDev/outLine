@@ -1,142 +1,135 @@
-{% extends 'layout.html' %} {% block body %}
-<div class="container-wide" ng-controller="homeCtrl">
-    <center>
-        <!--<canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>-->
-        <div id="container"></div>
-    </center>
-</div>
-{% endblock %} {% block script %}
+{% extends 'blankLayout.html' %} {% block body %} {% endblock %} {% block script %}
 <script src="/public/vendor/flixi/stats.js"></script>
 <script src="/public/vendor/flixi/detector.js"></script>
 <script src="/public/vendor/flixi/three.js"></script>
 <script src="/public/vendor/flixi/pixi.js"></script>
-<script src="/public/vendor/flixi/input.js"></script>
 <script src="/public/vendor/flixi/keypress.js"></script>
 <script src="/public/vendor/flixi/flixi.js"></script>
 
+<script src="/public/custom/game3D/materials.js"></script>
+<script src="/public/custom/game3D/player.js"></script>
+<script src="/public/custom/game3D/projectile.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
 <script type="text/javascript">
-function homeCtrl($scope, $http) {
+if (!Detector.webgl) Detector.addGetWebGLMessage();
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+camera.position.set(0, 200, 800);
+var scene = new THREE.Scene();
 
-    if (!Detector.webgl) Detector.addGetWebGLMessage();
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-    camera.position.set(0, 200, 800);
-    var scene = new THREE.Scene();
+// objects
+var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 10, 10), MATERIALS.DEFAULT);
+plane.rotation.x = -Math.PI / 2;
+scene.add(plane);
 
+var geometry = new THREE.SphereGeometry(70, 32, 16)
+var sphere = new THREE.Mesh(geometry, MATERIALS.DEFAULT)
+scene.add(sphere);
 
-    // objects
-    var material = new THREE.MeshLambertMaterial({
-        color: 0xdddddd,
-        shading: THREE.SmoothShading
-    });
+var player = new Player();
+scene.add(player.body);
 
-    var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000,10,10), material);
-    plane.rotation.x = -Math.PI / 2;
-    scene.add(plane);
+// Lights
+var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
+    color: 0xffffff
+}));
+scene.add(particleLight);
 
-    var geometry = new THREE.SphereGeometry(70, 32, 16)
-    var sphere = new THREE.Mesh(geometry, material)
-    scene.add(sphere);
+scene.add(new THREE.AmbientLight(0x111111));
 
-    var Player = function() {
-        this.body = new THREE.Mesh(new THREE.SphereGeometry(20, 8, 8), material)
-        this.body.position.y=20
-        this.spd = new THREE.Vector3(0, 0, 0);
-        this.controller = new FLIXI.Controller({
-            left: "left",
-            right: "right",
-            up: "up",
-            down: "down",
-            attack: "z"
-        });
-        this.moveAcc = 1;
-        this.maxSpd = 10;
-        this.move = function() {
-            var keydown = false;
-            if (this.controller.getKey("down")) {
-                keydown = true;
-                this.spd.x += Math.sin(this.body.rotation.y) * this.moveAcc
-                this.spd.z += Math.cos(this.body.rotation.y) * this.moveAcc
-            }
-            if (this.controller.getKey("up")) {
-                keydown = true;
-                this.spd.x -= Math.sin(this.body.rotation.y) * this.moveAcc
-                this.spd.z -= Math.cos(this.body.rotation.y) * this.moveAcc
-            }
-            if (this.controller.getKey("left")) {
-                this.body.rotation.y += 0.05
-            }
-            if (this.controller.getKey("right")) {
-                this.body.rotation.y -= 0.05
-            }
-            if(!keydown){
-                this.spd.setLength(0);
-            }
-            if (this.spd.length() > this.maxSpd) {
-                this.spd.setLength(this.maxSpd)
-            }
-            this.body.position.add(this.spd)
-        }
-    }
-
-    var player = new Player();
-    scene.add(player.body);
-
-    // Lights
-    var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
-        color: 0xffffff
-    }));
-    scene.add(particleLight);
-
-    scene.add(new THREE.AmbientLight(0x111111));
-
-    /*var directionalLight = new THREE.DirectionalLight(0xffffff, 0.125 );
+/*var directionalLight = new THREE.DirectionalLight(0xffffff, 0.125 );
     directionalLight.position.x = Math.random() - 0.5;
     directionalLight.position.y = Math.random() - 0.5;
     directionalLight.position.z = Math.random() - 0.5;
     directionalLight.position.normalize();
     scene.add( directionalLight );*/
 
-    var pointLight = new THREE.PointLight(0xffffff, 1);
-    particleLight.add(pointLight);
+var pointLight = new THREE.PointLight(0xffffff, 1);
+particleLight.add(pointLight);
 
-    //renderer
-    var container = document.createElement('div');
-    document.body.appendChild(container);
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    });
-    renderer.setSize(window.innerWidth - 15, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+//renderer
+var container = document.createElement('div');
+document.body.appendChild(container);
+renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+renderer.setSize(window.innerWidth, window.innerHeight - 5);
+document.body.appendChild(renderer.domElement);
 
-    //resizing
-    window.addEventListener('resize', onWindowResize, false);
+//resizing
+window.addEventListener('resize', onWindowResize, false);
 
-    function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    FLIXI.RunEveryFrame(function() {
-        var timer = 0.0001 * Date.now();
-
-        //camera.position.x = Math.cos( timer ) * 1000;
-        //camera.position.z = Math.sin( timer ) * 1000;
-
-        player.move();
-
-        camera.position.copy(player.body.position);
-        camera.position.y = 100;
-        camera.position.x += Math.sin(player.body.rotation.y) * 300
-        camera.position.z += Math.cos(player.body.rotation.y) * 300
-        camera.lookAt(player.body.position);
-
-        particleLight.position.x = Math.sin(timer * 7) * 300;
-        particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
-        particleLight.position.z = Math.cos(timer * 3) * 300;
-        renderer.render(scene, camera)
-    })
-
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+var otherPlayers = {}
+
+var socket = io();
+var frame = 0;
+var i = 0;
+socket.on("updatePos", function(data) {
+    
+    //console.log(data)
+    if(otherPlayers[data.id]){
+        //player.body.position.y++;
+        //console.log(otherPlayers[data.id])
+        //console.log(data.pos)
+        otherPlayers[data.id].body.position.copy(data.pos)
+    }
+})
+
+socket.on("otherUsers", function(data){
+    for (var key in data.users) {
+        console.log("added: ")
+        otherPlayers[key] = new OtherPlayer();
+        scene.add(otherPlayers[key].body);
+    }
+})
+
+socket.on("playerJoined", function(data) {
+    console.log("added: ")
+    otherPlayers[data.id] = new OtherPlayer();
+    scene.add(otherPlayers[data.id].body);
+    //console.log(data)
+})
+
+socket.on("playerLeft", function(data) {
+    scene.remove(otherPlayers[data.id].body);
+    delete otherPlayers[data.id];
+    //console.log(data)
+})
+
+socket.on("gameStart", function(data) {
+    console.log(data)
+    if(data.playerNum == 0){
+        player.body.position.z=-1000
+        player.body.rotation.y = Math.PI
+    }else{
+        player.body.position.z=1000
+    }
+})
+
+FLIXI.RunEveryFrame(function() {
+    var timer = 0.0001 * Date.now();
+    frame++;
+    player.move();
+    camera.position.copy(player.body.position);
+    camera.position.y = 100;
+    camera.position.x += Math.sin(player.body.rotation.y) * 300
+    camera.position.z += Math.cos(player.body.rotation.y) * 300
+    camera.lookAt(player.body.position);
+
+    particleLight.position.x = Math.sin(timer * 7) * 300;
+    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
+    particleLight.position.z = Math.cos(timer * 3) * 300;
+    renderer.render(scene, camera)
+    if(frame % 1 == 0){
+        socket.emit("updatePos", {pos: player.body.position})
+    }    
+})
 </script>
 {% endblock %}
