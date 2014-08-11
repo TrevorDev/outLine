@@ -13,6 +13,8 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <script type="text/javascript">
+var socket = io();
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
 camera.position.set(0, 200, 800);
@@ -24,11 +26,10 @@ plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
 var geometry = new THREE.SphereGeometry(70, 32, 16)
-var sphere = new THREE.Mesh(geometry, MATERIALS.DEFAULT)
+var sphere = new THREE.Mesh(geometry, MATERIALS.GREEN)
 scene.add(sphere);
 
-var player = new Player();
-scene.add(player.body);
+var player = new MainPlayer(scene, socket);
 
 // Lights
 var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
@@ -68,39 +69,50 @@ function onWindowResize() {
 
 var otherPlayers = {}
 
-var socket = io();
+
 var frame = 0;
 var i = 0;
 socket.on("updatePos", function(data) {
     
     //console.log(data)
-    if(otherPlayers[data.id]){
+    if(otherPlayers[data.playerId]){
         //player.body.position.y++;
-        //console.log(otherPlayers[data.id])
+        //console.log(otherPlayers[data.playerId])
         //console.log(data.pos)
-        otherPlayers[data.id].body.position.copy(data.pos)
+        otherPlayers[data.playerId].body.position.copy(data.pos)
     }
 })
 
 socket.on("otherUsers", function(data){
     for (var key in data.users) {
-        console.log("added: ")
-        otherPlayers[key] = new OtherPlayer();
+        otherPlayers[key] = new OtherPlayer(scene);
         scene.add(otherPlayers[key].body);
     }
 })
 
 socket.on("playerJoined", function(data) {
     console.log("added: ")
-    otherPlayers[data.id] = new OtherPlayer();
-    scene.add(otherPlayers[data.id].body);
+    otherPlayers[data.playerId] = new OtherPlayer(scene);
+    scene.add(otherPlayers[data.playerId].body);
     //console.log(data)
 })
 
+socket.on("shotFired", function(data) {
+    var proj = new Projectile(data.pos, data.spd, data.projId)
+    scene.add(proj.body)
+    otherPlayers[data.playerId].projectiles[data.projId] = proj
+
+})
+
 socket.on("playerLeft", function(data) {
-    scene.remove(otherPlayers[data.id].body);
-    delete otherPlayers[data.id];
-    //console.log(data)
+    scene.remove(otherPlayers[data.playerId].body);
+    delete otherPlayers[data.playerId];
+})
+
+socket.on("gotHit", function(data) {
+    otherPlayers[data.playerId].takeHit(data.dmg)
+    scene.remove(otherPlayers[data.playerId].projectiles[data.projId])
+    delete (otherPlayers[data.playerId].projectiles)[data.projId]
 })
 
 socket.on("gameStart", function(data) {
@@ -117,6 +129,19 @@ FLIXI.RunEveryFrame(function() {
     var timer = 0.0001 * Date.now();
     frame++;
     player.move();
+    $.each(otherPlayers, function(i, p){
+        p.move();
+        for(var key in p.projectiles) {
+            var dist = new THREE.Vector3()
+            dist.subVectors(p.projectiles[key].body.position, player.body.position)
+            if(dist.length() < 30){
+                player.takeHit(p.projectiles[key].dmg)
+                scene.remove(p.projectiles[key].body)
+                socket.emit("gotHit", {dmg: p.projectiles[key].dmg, projId: p.projectiles[key].projId})
+                delete p.projectiles[key]
+            }
+        }    
+    })
     camera.position.copy(player.body.position);
     camera.position.y = 100;
     camera.position.x += Math.sin(player.body.rotation.y) * 300
@@ -127,7 +152,7 @@ FLIXI.RunEveryFrame(function() {
     particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
     particleLight.position.z = Math.cos(timer * 3) * 300;
     renderer.render(scene, camera)
-    if(frame % 1 == 0){
+    if(frame % 10 == 0){
         socket.emit("updatePos", {pos: player.body.position})
     }    
 })

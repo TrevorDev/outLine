@@ -71,7 +71,7 @@ io.on('connection', function(socket){
 	  }
   }
   socket.emit('otherUsers', {users: rooms[roomName].users})
-  socket.broadcast.to(roomName).emit('playerJoined', {id: socket.id, name: ""})
+  socket.broadcast.to(roomName).emit('playerJoined', {playerId: socket.id, name: ""})
   rooms[roomName].users[socket.id] = {userName: "test"}
   socket.join(roomName)
 
@@ -79,18 +79,26 @@ io.on('connection', function(socket){
   	roomNumber++;
   	room = io.sockets.adapter.rooms[roomName];
   	var i = 0;
-  	for (var id in room) {
-    	io.sockets.adapter.nsp.connected[id].emit("gameStart", {playerNum: i})
+  	for (var playerId in room) {
+    	io.sockets.adapter.nsp.connected[playerId].emit("gameStart", {playerNum: i})
     	i++
     }
   }
 
   socket.on('updatePos', function(data){
-  	socket.broadcast.to(roomName).emit('updatePos', {id: socket.id, pos: data.pos})
+  	socket.broadcast.to(roomName).emit('updatePos', {playerId: socket.id, pos: data.pos})
+  })
+
+  socket.on('gotHit', function(data){
+    socket.broadcast.to(roomName).emit('gotHit', {playerId: socket.id, projId: data.projId, dmg: data.dmg})
+  })
+
+  socket.on('shotFired', function(data){
+    socket.broadcast.to(roomName).emit('shotFired', {playerId: socket.id, pos: data.pos, spd: data.spd, projId: data.projId})
   })
 
   socket.on('disconnect', function(){
-  	socket.broadcast.to(roomName).emit('playerLeft', {id: socket.id})
+  	socket.broadcast.to(roomName).emit('playerLeft', {playerId: socket.id})
   	delete rooms[roomName].users[socket.id];
   });
 });

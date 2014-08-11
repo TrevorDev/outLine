@@ -45,6 +45,14 @@ var FLIXI = {
             }
         }
     },
+    randomID: function() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        }
+        return s4() + s4() + s4() + '-' + s4() + s4() + s4();
+    },
     createSprite: function(link, width, height) {
         var texture = new PIXI.Texture.fromImage(link)
         var sprite = new PIXI.Sprite(texture)
@@ -83,7 +91,7 @@ var FLIXI = {
         }
     },
     Controller: function(keys) {
-    		var listener = new window.keypress.Listener();
+        var listener = new window.keypress.Listener();
         keyMap = {}
         for (var i in keys) {
             keyMap[i] = [keys[i], false]
@@ -98,6 +106,11 @@ var FLIXI = {
         };
         this.getKey = function(key) {
             return this.keys[key][1];
+        }
+        this.getKeyPressed = function(key) {
+            var ret = this.keys[key][1];
+            this.keys[key][1] = false;
+            return ret;
         }
 
         for (var key in this.keys) {
