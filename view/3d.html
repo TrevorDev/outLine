@@ -67,19 +67,52 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+//MAINLOOP
 var otherPlayers = {}
-
-
 var frame = 0;
-var i = 0;
+FLIXI.RunEveryFrame(function() {
+    var timer = 0.0001 * Date.now();
+    frame++;
+    player.move();
+    $.each(otherPlayers, function(i, p){
+        p.move();
+        for(var key in p.projectiles) {
+            var dist = new THREE.Vector3()
+            dist.subVectors(p.projectiles[key].body.position, player.body.position)
+            //TODO get rid of magic 30
+            if(dist.length() < 30){
+                player.takeHit(p.projectiles[key].dmg)
+                scene.remove(p.projectiles[key].body)
+                socket.emit("gotHit", {dmg: p.projectiles[key].dmg, projId: p.projectiles[key].projId})
+                if(player.isDead()){
+                    alert("You have lost :( Find a new match?")
+                    location.reload();
+                }
+                delete p.projectiles[key]
+            }
+        }    
+    })
+
+    camera.position.copy(player.body.position);
+    camera.position.y = 100;
+    camera.position.x += Math.sin(player.body.rotation.y) * 300
+    camera.position.z += Math.cos(player.body.rotation.y) * 300
+    camera.lookAt(player.body.position);
+
+    particleLight.position.x = Math.sin(timer * 7) * 300;
+    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
+    particleLight.position.z = Math.cos(timer * 3) * 300;
+    renderer.render(scene, camera)
+    if(frame % 5 == 0){
+        socket.emit("updatePos", {pos: player.body.position})
+    }    
+})
+
+
 socket.on("updatePos", function(data) {
-    
-    //console.log(data)
     if(otherPlayers[data.playerId]){
-        //player.body.position.y++;
-        //console.log(otherPlayers[data.playerId])
-        //console.log(data.pos)
-        otherPlayers[data.playerId].body.position.copy(data.pos)
+        otherPlayers[data.playerId].updatePos(data.pos)
+        //otherPlayers[data.playerId].body.position.copy(data.pos)
     }
 })
 
@@ -91,10 +124,8 @@ socket.on("otherUsers", function(data){
 })
 
 socket.on("playerJoined", function(data) {
-    console.log("added: ")
     otherPlayers[data.playerId] = new OtherPlayer(scene);
     scene.add(otherPlayers[data.playerId].body);
-    //console.log(data)
 })
 
 socket.on("shotFired", function(data) {
@@ -111,50 +142,21 @@ socket.on("playerLeft", function(data) {
 
 socket.on("gotHit", function(data) {
     otherPlayers[data.playerId].takeHit(data.dmg)
-    scene.remove(otherPlayers[data.playerId].projectiles[data.projId])
-    delete (otherPlayers[data.playerId].projectiles)[data.projId]
+    scene.remove(player.projectiles[data.projId].body)
+    delete (player.projectiles)[data.projId]
+    if(otherPlayers[data.playerId].isDead()){
+        alert("You have won :) Find a new match?")
+        location.reload();
+    }
 })
 
 socket.on("gameStart", function(data) {
-    console.log(data)
     if(data.playerNum == 0){
         player.body.position.z=-1000
         player.body.rotation.y = Math.PI
     }else{
         player.body.position.z=1000
     }
-})
-
-FLIXI.RunEveryFrame(function() {
-    var timer = 0.0001 * Date.now();
-    frame++;
-    player.move();
-    $.each(otherPlayers, function(i, p){
-        p.move();
-        for(var key in p.projectiles) {
-            var dist = new THREE.Vector3()
-            dist.subVectors(p.projectiles[key].body.position, player.body.position)
-            if(dist.length() < 30){
-                player.takeHit(p.projectiles[key].dmg)
-                scene.remove(p.projectiles[key].body)
-                socket.emit("gotHit", {dmg: p.projectiles[key].dmg, projId: p.projectiles[key].projId})
-                delete p.projectiles[key]
-            }
-        }    
-    })
-    camera.position.copy(player.body.position);
-    camera.position.y = 100;
-    camera.position.x += Math.sin(player.body.rotation.y) * 300
-    camera.position.z += Math.cos(player.body.rotation.y) * 300
-    camera.lookAt(player.body.position);
-
-    particleLight.position.x = Math.sin(timer * 7) * 300;
-    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
-    particleLight.position.z = Math.cos(timer * 3) * 300;
-    renderer.render(scene, camera)
-    if(frame % 10 == 0){
-        socket.emit("updatePos", {pos: player.body.position})
-    }    
 })
 </script>
 {% endblock %}

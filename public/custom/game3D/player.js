@@ -4,6 +4,7 @@ var Player = function(scene) {
     this.scene.add(this.body)
     this.healthBar = new THREE.Mesh(new THREE.SphereGeometry(10, 10, 10), MATERIALS.RED)
     this.healthBar.position.y = 20
+    this.health = 100;
     this.body.add(this.healthBar);
     this.body.position.y = 20
     this.spd = new THREE.Vector3(0, 0, 0);
@@ -12,9 +13,13 @@ var Player = function(scene) {
     this.projectiles = {}
     this.move = function() {}
     this.takeHit = function(dmg){
-        this.healthBar.scale.x -= dmg
-        this.healthBar.scale.y -= dmg
-        this.healthBar.scale.z -= dmg
+        this.health-=dmg;
+        this.healthBar.scale.x -= dmg/100
+        this.healthBar.scale.y -= dmg/100
+        this.healthBar.scale.z -= dmg/100
+    }
+    this.isDead = function(){
+        return (this.health <= 0)
     }
 }
 
@@ -79,7 +84,35 @@ var MainPlayer = function(scene, socket) {
 
 var OtherPlayer = function(scene) {
     Player.call(this, scene)
+
+    this.oldUpdateTime = new Date()
+    this.oldPos = new THREE.Vector3()
+    this.newUpdateTime = new Date()
+    this.nextPos = new THREE.Vector3()
+
+    this.updatePos = function(nxt){
+        this.oldUpdateTime = this.newUpdateTime
+        this.oldPos.copy(this.body.position)
+        //console.log(this.oldPos)
+        this.newUpdateTime = new Date()
+        this.nextPos.copy(nxt)
+    }
+
     this.move = function() {
+        var curTime = new Date();
+        var timeDiff = (this.newUpdateTime - this.oldUpdateTime)
+        //replace with cubic spline TODO
+        if(timeDiff!=0){
+            var fraction = (curTime - this.newUpdateTime)/timeDiff
+            var posDiff = new THREE.Vector3()
+            
+            posDiff.subVectors(this.nextPos, this.oldPos)
+            posDiff.multiplyScalar(fraction)
+            posDiff.add(this.oldPos)
+            this.body.position.copy(posDiff)
+        }
+        
+
         for(var key in this.projectiles) {
             this.projectiles[key].move();
         }
