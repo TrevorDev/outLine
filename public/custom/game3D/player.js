@@ -10,6 +10,8 @@ var Player = function(scene) {
     this.spd = new THREE.Vector3(0, 0, 0);
     this.moveAcc = 1;
     this.maxSpd = 10;
+    this.shotCooldown = 0;
+    this.shotCooldownLimit = 40;
     this.projectiles = {}
     this.move = function() {}
     this.takeHit = function(dmg){
@@ -66,7 +68,8 @@ var MainPlayer = function(scene, socket) {
         }
 
         //ACTIONS
-        if (this.controller.getKeyPressed("attack")) {
+        if (this.controller.getKey("attack") && this.shotCooldown <= 0) {
+            this.shotCooldown = this.shotCooldownLimit
             var spd = 40;
             var spdVec = new THREE.Vector3(-Math.sin(this.body.rotation.y) * spd, 0, -Math.cos(this.body.rotation.y) * spd)
             var id = FLIXI.randomID();
@@ -79,6 +82,7 @@ var MainPlayer = function(scene, socket) {
                 spd: spdVec
             })
         }
+        this.shotCooldown--;
     }
 }
 

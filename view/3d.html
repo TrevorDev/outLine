@@ -25,9 +25,22 @@ var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 10, 10), MATERIAL
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
-var geometry = new THREE.SphereGeometry(70, 32, 16)
-var sphere = new THREE.Mesh(geometry, MATERIALS.GREEN)
-scene.add(sphere);
+var bushes = []
+for(var i = 0;i < 5; i++){
+    var geometry = new THREE.SphereGeometry(90, 10, 20)
+    var sphere = new THREE.Mesh(geometry, MATERIALS.GREEN)
+    if(i==1){
+        sphere.position.x+=300;
+    }else if(i==2){
+        sphere.position.x-=300;
+    }else if(i==3){
+        sphere.position.z+=300;
+    }else if(i==4){
+        sphere.position.z-=300;
+    }
+    bushes.push(sphere)
+    scene.add(sphere);
+}
 
 var player = new MainPlayer(scene, socket);
 

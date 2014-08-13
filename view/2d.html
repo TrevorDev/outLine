@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="container-wide" ng-controller="homeCtrl">
+<center>
+	<canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>
+</center>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/input.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<script type="text/javascript">
+function homeCtrl($scope, $http) {
+	var s = new FLIXI.Screen($("#myCanvas"));
+	var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
+	img.rotation = 45 * (Math.PI/180);
+	var graphics = new PIXI.Graphics();
+	s.container.addChild(graphics);
+	s.container.addChild(img)
+
+	var lines = [];
+	createLines(lines, new FLIXI.Line(new PIXI.Point(0,100), new PIXI.Point(400,100)), 10, 0);
+
+	//s.resize(1920,1080)
+
+	s.runAnimateLoop(function(){
+		graphics.clear();
+		$.each(lines, function(i, line) {
+			line.draw(graphics);
+        });
+        //s.camera.zoom(1.01);
+		img.x++;
+	});
+
+	$("#myCanvas").on("mousewheel", function(e){
+		e.preventDefault();
+		if(e.originalEvent.wheelDelta /120 < 0){
+			s.camera.zoom(0.97);
+		}else{
+			s.camera.zoom(1.03);
+		}
+		
+	})
+
+	$("#myCanvas").on("mousemove", function(e){
+		console.log(e)
+		var rect = $("#myCanvas").getBoundingClientRect();
+        console.log(e.clientX - rect.left, e.clientY - rect.top);
+	})
+}
+
+var createLines = function(lines,line, maxDepth, depth){
+	lines.push(line)
+	depth++;
+	if(depth>maxDepth){
+		return;
+	}
+	var line1 = line.clone();
+	line1.start = line.end.clone();
+	line1.end = line.end.clone();
+	line1.end.x += 30
+	var line2 = line1.clone();
+	line1.end.y-=5
+	line2.end.y+=100
+	createLines(lines,line1, maxDepth, depth);
+	createLines(lines,line2, maxDepth, depth);
+}
+</script>
+{% endblock %}
