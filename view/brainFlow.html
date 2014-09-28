@@ -1,0 +1,95 @@
+{% extends 'blankLayout.html' %} {% block body %} {% endblock %} {% block script %}
+<script src="/public/vendor/flixi/stats.js"></script>
+<script src="/public/vendor/flixi/detector.js"></script>
+<script src="/public/vendor/flixi/three.js"></script>
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<script src="/public/custom/brainFlow/materials.js"></script>
+<script src="/public/custom/brainFlow/player.js"></script>
+<script src="/public/custom/brainFlow/wall.js"></script>
+
+<script type="text/javascript">
+
+if (!Detector.webgl) Detector.addGetWebGLMessage();
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+camera.position.set(0, 200, 800);
+var scene = new THREE.Scene();
+
+// objects
+var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 10, 10), MATERIALS.DEFAULT);
+plane.rotation.x = -Math.PI / 2;
+//scene.add(plane);
+
+var player = new MainPlayer(scene);
+player.body.position.y += 100;
+var wall = new Wall(scene);
+//wall.hitbox.position.copy(player.body.position);
+//wall.hitbox.rotation.x+=Math.PI/20;
+console.log(wall.getVertices());
+console.log(wall.getFaces());
+console.log(wall.hitbox.geometry);
+// Lights
+var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
+    color: 0xffffff
+}));
+scene.add(particleLight);
+
+scene.add(new THREE.AmbientLight(0x111111));
+
+
+/*var directionalLight = new THREE.DirectionalLight(0xffffff, 0.125 );
+    directionalLight.position.x = Math.random() - 0.5;
+    directionalLight.position.y = Math.random() - 0.5;
+    directionalLight.position.z = Math.random() - 0.5;
+    directionalLight.position.normalize();
+    scene.add( directionalLight );*/
+
+var pointLight = new THREE.PointLight(0xffffff, 1);
+particleLight.add(pointLight);
+
+//renderer
+var container = document.createElement('div');
+document.body.appendChild(container);
+renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+renderer.setSize(window.innerWidth, window.innerHeight - 5);
+document.body.appendChild(renderer.domElement);
+
+//resizing
+window.addEventListener('resize', onWindowResize, false);
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+//MAINLOOP
+var frame = 0;
+FLIXI.RunEveryFrame(function() {
+    var timer = 0.0001 * Date.now();
+    frame++;
+    var from = player.body.position.clone();
+    player.move();
+    player.body.position.y-=2;
+    var to = player.body.position.clone();
+
+    if(wall.checkCollision(from, to)){
+        player.body.position.y+=10;
+    }
+
+    camera.position.copy(player.body.position);
+    camera.position.y = 100;
+    camera.position.x += Math.sin(player.body.rotation.y) * 300
+    camera.position.z += Math.cos(player.body.rotation.y) * 300
+    camera.lookAt(player.body.position);
+    particleLight.position.x = Math.sin(timer * 7) * 300;
+    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
+    particleLight.position.z = Math.cos(timer * 3) * 300;
+    renderer.render(scene, camera)
+})
+</script>
+{% endblock %}

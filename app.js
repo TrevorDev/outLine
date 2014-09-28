@@ -34,6 +34,7 @@ app.use(router(app))
 app.get('/', defaultPageLoad('index'))
 app.get('/2d', defaultPageLoad('2d'))
 app.get('/3d', defaultPageLoad('3d'))
+app.get('/brainFlow', defaultPageLoad('brainFlow'))
 app.get(/\/public\/*/, serve('.'))
 
 //API ROUTES
