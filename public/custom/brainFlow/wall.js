@@ -15,7 +15,8 @@ var Wall = function(scene) {
         var verts = this.getVertices();
         var ret = [];
         $.each(this.hitbox.geometry.faces, function(i, f){
-            //TODO verts and normal need to be rotated to match world
+            //TODO verts and normal need to be rotated to match world(try below????)
+            //var normalWorld = new THREE.Matrix().extractRotation( object.matrixWorld ).multiplyVector3( normal.clone() );
             ret.push(new HitFace(verts[f.a],verts[f.b],verts[f.c], f.normal));
         })
         return ret;
