@@ -5,6 +5,7 @@ var Player = function(scene) {
     this.healthBar = new THREE.Mesh(new THREE.SphereGeometry(10, 10, 10), MATERIALS.RED)
     this.healthBar.position.y = 20
     this.health = 100;
+    this.gravity = 0.1;
     //this.body.add(this.healthBar);
     this.body.position.y = 20
     this.spd = new THREE.Vector3(0, 0, 0);
@@ -20,6 +21,18 @@ var Player = function(scene) {
         this.healthBar.scale.y -= dmg/100
         this.healthBar.scale.z -= dmg/100
     }
+
+    this.getFeet = function(){
+        var ret = this.body.position.clone();
+        ret.y-=10;
+        return ret;
+    }
+
+    this.moveFeetTo = function(vec3){
+        this.body.position.copy(vec3)
+        this.body.position.y+=10;
+    }
+
     this.isDead = function(){
         return (this.health <= 0)
     }
@@ -56,16 +69,19 @@ var MainPlayer = function(scene) {
             this.body.rotation.y -= 0.05
         }
         if (!keydown) {
-            this.spd.setLength(0);
+            //this.spd.setLength(0);
         }
         if (this.spd.length() > this.maxSpd) {
-            this.spd.setLength(this.maxSpd)
+            //this.spd.setLength(this.maxSpd)
         }
+
+        this.spd.y-=this.gravity;
+
         this.body.position.add(this.spd)
 
         //ACTIONS
         if (this.controller.getKey("attack") && this.shotCooldown <= 0) {
-            
+            this.spd.y = 3;
         }
         this.shotCooldown--;
     }

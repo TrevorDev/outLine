@@ -6,6 +6,7 @@
 <script src="/public/vendor/flixi/keypress.js"></script>
 <script src="/public/vendor/flixi/flixi.js"></script>
 
+<script src="/public/custom/brainFlow/collision.js"></script>
 <script src="/public/custom/brainFlow/materials.js"></script>
 <script src="/public/custom/brainFlow/player.js"></script>
 <script src="/public/custom/brainFlow/wall.js"></script>
@@ -18,13 +19,14 @@ camera.position.set(0, 200, 800);
 var scene = new THREE.Scene();
 
 // objects
-var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 10, 10), MATERIALS.DEFAULT);
-plane.rotation.x = -Math.PI / 2;
+//var plane = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000, 10, 10), MATERIALS.DEFAULT);
+//plane.rotation.x = -Math.PI / 2;
 //scene.add(plane);
 
 var player = new MainPlayer(scene);
 player.body.position.y += 100;
 var wall = new Wall(scene);
+//wall.hitbox.position.x+=400;
 //wall.hitbox.position.copy(player.body.position);
 //wall.hitbox.rotation.x+=Math.PI/20;
 console.log(wall.getVertices());
@@ -72,13 +74,13 @@ var frame = 0;
 FLIXI.RunEveryFrame(function() {
     var timer = 0.0001 * Date.now();
     frame++;
-    var from = player.body.position.clone();
+    var from = player.getFeet().clone();
     player.move();
-    player.body.position.y-=2;
-    var to = player.body.position.clone();
+    var to = player.getFeet().clone();
 
-    if(wall.checkCollision(from, to)){
-        player.body.position.y+=10;
+    var hit = wall.checkCollision(from, to);
+    if(hit){
+        player.moveFeetTo(hit);
     }
 
     camera.position.copy(player.body.position);
