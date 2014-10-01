@@ -21,7 +21,7 @@ var Collision = {
             var y = detY/det;
             var z = detZ/det;
             //console.log(x,y,z)
-            if(infiniteLength || (x>=0&&x<=1&&y>=0&&y<=1&&z>=0&&z<=1)){
+            if(infiniteLength || (x>=0&&x<=1&&y>=0&&y<=1&&z>=0&&z<=1&&(y+z)<=1)){
                 return from.clone().add(line.clone().multiplyScalar(x));
             }
         }

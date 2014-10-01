@@ -47,4 +47,9 @@ var HitFace = function(v1, v2, v3, normal){
     this.b = v2;
     this.c = v3;
     this.normal = normal;
+
+    this.checkCollision = function(from, to){
+        var face = this;
+        return Collision.lineFace(from, to, face);
+    }
 }

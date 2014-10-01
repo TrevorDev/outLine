@@ -10,7 +10,7 @@ var Player = function(world) {
     this.body.position.y = 20
     this.spd = new THREE.Vector3(0, 0, 0);
     this.moveAcc = 1;
-    this.maxSpd = 10;
+    this.maxSpd = 20;
     this.shotCooldown = 0;
     this.shotCooldownLimit = 40;
     this.projectiles = {}
@@ -72,17 +72,18 @@ var MainPlayer = function(world) {
             //this.spd.setLength(0);
         }
         if (this.spd.length() > this.maxSpd) {
-            //this.spd.setLength(this.maxSpd)
+            this.spd.setLength(this.maxSpd)
         }
 
         this.spd.y-=this.gravity;
-
-        this.body.position.add(this.spd)
-
         //ACTIONS
         if (this.controller.getKey("attack") && this.shotCooldown <= 0) {
             this.spd.y = 3;
         }
+
+        this.body.position.add(this.spd)
+
+        
         this.shotCooldown--;
     }
 }
