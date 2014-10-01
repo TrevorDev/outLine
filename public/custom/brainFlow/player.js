@@ -1,7 +1,7 @@
-var Player = function(scene) {
-    this.scene = scene;
+var Player = function(world) {
+    this.world = world;
     this.body = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), MATERIALS.DEFAULT)
-    this.scene.add(this.body)
+    this.world.scene.add(this.body)
     this.healthBar = new THREE.Mesh(new THREE.SphereGeometry(10, 10, 10), MATERIALS.RED)
     this.healthBar.position.y = 20
     this.health = 100;
@@ -38,8 +38,8 @@ var Player = function(scene) {
     }
 }
 
-var MainPlayer = function(scene) {
-    Player.call(this, scene)
+var MainPlayer = function(world) {
+    Player.call(this, world)
 
     this.controller = new FLIXI.Controller({
         left: "left",
