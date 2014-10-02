@@ -23,16 +23,26 @@ var MainWorld = function(){
 		this.walls.push(new Wall(this))
 		this.walls.push(new Wall(this))
 		this.walls.push(new Wall(this))
-		this.walls[i*3].hitbox.position.z-=600*i;
-		this.walls[i*3].hitbox.position.y-=100;
-		this.walls[i*3+1].hitbox.position.z-=600*i;
-		this.walls[i*3+1].hitbox.position.x=200;
-		this.walls[i*3+1].hitbox.position.y-=100;
-		this.walls[i*3+1].hitbox.rotation.z = Math.PI/5;
-		this.walls[i*3+2].hitbox.position.z-=600*i;
-		this.walls[i*3+2].hitbox.position.x-=200;
-		this.walls[i*3+2].hitbox.position.y-=100;
-		this.walls[i*3+2].hitbox.rotation.z = -Math.PI/5;
+		this.walls.push(new Wall(this))
+		this.walls.push(new Wall(this))
+		this.walls[i*5].hitbox.position.z-=550*i;
+		this.walls[i*5].hitbox.position.y-=500;
+		this.walls[i*5+1].hitbox.position.z-=550*i;
+		this.walls[i*5+1].hitbox.position.x=200;
+		this.walls[i*5+1].hitbox.position.y-=500;
+		this.walls[i*5+1].hitbox.rotation.z = Math.PI/5;
+		this.walls[i*5+2].hitbox.position.z-=550*i;
+		this.walls[i*5+2].hitbox.position.x-=200;
+		this.walls[i*5+2].hitbox.position.y-=500;
+		this.walls[i*5+2].hitbox.rotation.z = -Math.PI/5;
+		this.walls[i*5+3].hitbox.position.z-=550*i;
+		this.walls[i*5+3].hitbox.position.x-=400;
+		this.walls[i*5+3].hitbox.position.y-=500;
+		this.walls[i*5+3].hitbox.rotation.z = Math.PI/2;
+		this.walls[i*5+4].hitbox.position.z-=550*i;
+		this.walls[i*5+4].hitbox.position.x+=400;
+		this.walls[i*5+4].hitbox.position.y-=500;
+		this.walls[i*5+4].hitbox.rotation.z = Math.PI/2;
 	}
 	// this.walls[0] = new Wall(this)
 	// this.walls[1] = new Wall(this)
@@ -50,63 +60,7 @@ var MainWorld = function(){
 
 
 	this.runFrame = function(){
-	    var from = this.player.getFeet().clone();
 	    this.player.move();
-	    var to = this.player.getFeet().clone();
-
-	    var wallFaces = []
-	    $.each(this.walls, function(idx, elem) {
-	    	wallFaces = wallFaces.concat(elem.getFaces());
-		});
-	    var closestCollision = null
-	    var closestFace = null;
-	    var closestDist = -1;
-		$.each(wallFaces, function(idx, elem) {
-			var hit = elem.checkCollision(from, to)
-			if(hit){
-				//hit.add(elem.normal.clone().multiplyScalar(0.1))
-				var dist = from.clone().sub(hit).length();
-				if(closestDist == -1 || dist < closestDist){
-					closestFace=elem
-					closestDist = dist;
-					closestCollision = hit;
-				}
-			}			
-		});
-		if(closestCollision){
-			var otherHit = Collision.linePlane(to, to.clone().add(closestFace.normal), closestFace);
-			otherHit.add(closestFace.normal.clone().multiplyScalar(0.1))
-			this.player.moveFeetTo(otherHit);
-			this.player.spd.projectOnPlane(closestFace.normal)
-			//check if collision occurs afer new pos calculation
-			var multiCollide = false;
-			$.each(wallFaces, function(idx, elem) {
-				var hit = elem.checkCollision(from, otherHit)
-				if(hit){
-					multiCollide=true
-					return false;
-				}			
-			});
-			if(multiCollide){
-				this.player.moveFeetTo(from);
-			}
-
-		}
-
-		
-
-
-	    //TODO HANDLE DOUBLE COLLISION
-	    /*var hit = null
-	    $.each(this.walls, function(idx, elem) {
-	    	var h = elem.checkCollision(from, to);
-	    	if(h){
-	    		hit = h
-	    	}
-		});
-		if(hit){
-	    	this.player.moveFeetTo(hit);
-	    }*/
 	   
 
 	    var timer = 0.0001 * Date.now();

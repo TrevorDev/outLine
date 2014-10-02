@@ -80,10 +80,56 @@ var MainPlayer = function(world) {
         if (this.controller.getKey("attack") && this.shotCooldown <= 0) {
             this.spd.y = 3;
         }
-
-        this.body.position.add(this.spd)
-
-        
         this.shotCooldown--;
+
+        var from = this.getFeet().clone();
+        this.body.position.add(this.spd)
+        var to = this.getFeet().clone();
+        var newPos = this.collisionAdjust(from, to);
+
+        if(newPos){
+            this.moveFeetTo(newPos)
+        }
+            
+
+    }
+
+    this.collisionAdjust = function(from, to){
+         var wallFaces = []
+        $.each(this.world.walls, function(idx, elem) {
+            wallFaces = wallFaces.concat(elem.getFaces());
+        });
+        var closestCollision = null
+        var closestFace = null;
+        var closestDist = -1;
+        $.each(wallFaces, function(idx, elem) {
+
+            var hit = elem.checkCollision(from, to)
+            if(hit){
+                var dist = from.clone().sub(hit).length();
+                if(closestDist == -1 || dist < closestDist){
+                    closestFace=elem
+                    closestDist = dist;
+                    closestCollision = hit;
+                }
+            }           
+        });
+        if(closestCollision){
+            closestCollision.add(closestFace.normal.clone().multiplyScalar(0.05))
+            this.spd.projectOnPlane(closestFace.normal)
+            var otherHit = Collision.linePlane(to, to.clone().add(closestFace.normal), closestFace);
+            otherHit.add(closestFace.normal.clone().multiplyScalar(0.05))
+            var checkCollision = this.collisionAdjust(closestCollision, otherHit);
+            //TODO handle infinit recursion case (concave)
+            if(checkCollision){
+                return checkCollision
+            }else{
+                return otherHit
+            }
+            
+        }else{
+            console.log("noHit")
+        }
+        return null;
     }
 }
