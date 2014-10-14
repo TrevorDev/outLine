@@ -79,11 +79,16 @@ var MainPlayer = function(world) {
         if (this.controller.getKey("right")) {
             this.body.rotation.y -= 0.05
         }
-        if (!keydown) {
+        if (this.grounded && !keydown) {
             //this.spd.setLength(0);
+            this.spd.x*=0.7;
+            this.spd.z*=0.7;
         }
-        if (this.spd.length() > this.maxSpd) {
-            this.spd.setLength(this.maxSpd)
+        var spd2d = Math.sqrt(this.spd.x*this.spd.x + this.spd.z*this.spd.z);
+        if (spd2d > this.maxSpd) {
+            this.spd.x *= this.maxSpd/spd2d
+            this.spd.z *= this.maxSpd/spd2d
+            //this.spd.setLength(this.maxSpd)
         }
 
         this.spd.y-=this.gravity;

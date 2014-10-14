@@ -1,7 +1,8 @@
 var MATERIALS = {
-	DEFAULT: new THREE.MeshLambertMaterial({
+	DEFAULT: new THREE.MeshPhongMaterial({
         color: 0xdddddd,
-        shading: THREE.SmoothShading
+        shading: THREE.SmoothShading,
+        shininess: 1
     }),
 	GREEN: new THREE.MeshLambertMaterial({
         color: 0xAAEEAA,

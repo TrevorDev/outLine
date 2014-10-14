@@ -28,8 +28,9 @@ var MainWorld = function(){
 	}));
 	var pointLight = new THREE.PointLight(0xffffff, 1);
 	particleLight.add(pointLight);
-	this.scene.add(particleLight);
-	this.scene.add(new THREE.AmbientLight(0x222222));
+	//this.scene.add(particleLight);
+	this.scene.add(new THREE.DirectionalLight(0xffffff, 0.5 ));
+	this.scene.add(new THREE.AmbientLight(0x111111));
 
 	this.lastChunk = null;
 	this.runFrame = function(){
@@ -83,6 +84,18 @@ var MainWorld = function(){
 var WorldChunk = function(world, vec){
 	world.chunks[vec.x+""+vec.z] = this;
 	this.walls = []
+
+
+	//lighting
+	this.particleLights = []
+	this.particleLights.push(new THREE.Mesh(new THREE.SphereGeometry(3,3,3), new THREE.MeshBasicMaterial({color: 0xffffff})))
+	var pointLight = new THREE.PointLight(0xFFFFFF, 0.4, 3000);
+	this.particleLights[0].add(pointLight);
+	this.particleLights[0].position.x=vec.x*world.chunkSize+500; 
+	this.particleLights[0].position.z=vec.z*world.chunkSize+100; 
+	this.particleLights[0].position.y=300;
+	
+
 	this.walls.push(new Wall(world))
 	this.walls[0]
 	this.walls[0].hitbox.position.x=vec.x*world.chunkSize;
@@ -90,14 +103,20 @@ var WorldChunk = function(world, vec){
 	this.walls[0].hitbox.scale.y = 5000;
 	
 	Math.seedrandom(vec.x+''+vec.z);
+	if(Math.random() > 0.2){
+		world.scene.add(this.particleLights[0]);
+	}
 	this.walls[0].hitbox.position.y=-2500-(Math.random()*500);
 	var dist = Math.abs(vec.z) >  Math.abs(vec.z) ? Math.abs(vec.z) : Math.abs(vec.z)
-	this.walls[0].hitbox.scale.x += Math.random()*1000;
-	this.walls[0].hitbox.scale.z += Math.random()*1000;
+	this.walls[0].hitbox.scale.x += 1000+Math.random()*1000;
+	this.walls[0].hitbox.scale.z += 1000+Math.random()*1000;
 	//this.walls[0].hitbox.position.y -= 500 * dist;
 	Math.seedrandom()
 
 	this.dispose = function(){
+
+		world.scene.remove(this.particleLights[0]);
+
 		$.each(this.walls, function(key, val) {
 			val.world.scene.remove(val.hitbox)
 		})
