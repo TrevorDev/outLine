@@ -5,12 +5,14 @@ var Player = function(world) {
     this.healthBar = new THREE.Mesh(new THREE.SphereGeometry(10, 10, 10), MATERIALS.RED)
     this.healthBar.position.y = 20
     this.health = 100;
-    this.gravity = 0.1;
+    this.gravity = 0.2;
     //this.body.add(this.healthBar);
     this.body.position.y = 20
+    this.grounded = false;
     this.spd = new THREE.Vector3(0, 0, 0);
     this.moveAcc = 1;
-    this.maxSpd = 20;
+    this.maxSpd = 30;
+    this.jumpPower = 15;
     this.shotCooldown = 0;
     this.shotCooldownLimit = 40;
     this.projectiles = {}
@@ -49,7 +51,16 @@ var MainPlayer = function(world) {
         attack: "z"
     });
 
+    this.die = function(){
+        this.body.position.set(0,0,0)
+        this.spd.set(0,0,0)
+    }
+
     this.move = function() {
+        if(this.body.position.y < -700){
+            this.die();
+        }
+
         //MOVEMENT
         var keydown = false;
         if (this.controller.getKey("down")) {
@@ -77,8 +88,8 @@ var MainPlayer = function(world) {
 
         this.spd.y-=this.gravity;
         //ACTIONS
-        if (this.controller.getKey("attack") && this.shotCooldown <= 0) {
-            this.spd.y = 3;
+        if (this.controller.getKey("attack") && this.shotCooldown <= 0 && this.grounded) {
+            this.spd.y =  this.jumpPower;
         }
         this.shotCooldown--;
 
@@ -86,19 +97,27 @@ var MainPlayer = function(world) {
         this.body.position.add(this.spd)
         var to = this.getFeet().clone();
         var newPos = this.collisionAdjust(from, to);
-
         if(newPos){
+             //console.log("hit")
+             this.grounded = true;
             this.moveFeetTo(newPos)
+        }else{
+            this.grounded = false;
+            //console.log("notHit")
         }
             
 
     }
 
     this.collisionAdjust = function(from, to){
+
          var wallFaces = []
-        $.each(this.world.walls, function(idx, elem) {
-            wallFaces = wallFaces.concat(elem.getFaces());
+         $.each(this.world.chunks, function(key, val) {
+            $.each(val.walls, function(idx, elem) {
+                wallFaces = wallFaces.concat(elem.getFaces());
+            });
         });
+        
         var closestCollision = null
         var closestFace = null;
         var closestDist = -1;
@@ -115,12 +134,13 @@ var MainPlayer = function(world) {
             }           
         });
         if(closestCollision){
-            closestCollision.add(closestFace.normal.clone().multiplyScalar(0.05))
-            this.spd.projectOnPlane(closestFace.normal)
+            closestCollision.add(closestFace.normal.clone().multiplyScalar(0.05))//move away from plane
+            this.spd.projectOnPlane(closestFace.normal)//adjust speed by plane normal
             var otherHit = Collision.linePlane(to, to.clone().add(closestFace.normal), closestFace);
             otherHit.add(closestFace.normal.clone().multiplyScalar(0.05))
             var checkCollision = this.collisionAdjust(closestCollision, otherHit);
             //TODO handle infinit recursion case (concave)
+            //console.log("Hit")
             if(checkCollision){
                 return checkCollision
             }else{
@@ -128,7 +148,7 @@ var MainPlayer = function(world) {
             }
             
         }else{
-            console.log("noHit")
+            //console.log("noHit")
         }
         return null;
     }

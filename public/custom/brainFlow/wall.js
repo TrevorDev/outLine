@@ -1,6 +1,9 @@
 var Wall = function(world) {
     this.world = world;
-    this.hitbox = new THREE.Mesh(new THREE.BoxGeometry(500, 20, 500), MATERIALS.DEFAULT)
+    this.hitbox = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), MATERIALS.DEFAULT)
+    this.hitbox.scale.x = 500
+    this.hitbox.scale.y = 20
+    this.hitbox.scale.z = 500
     this.world.scene.add(this.hitbox)
     this.getVertices = function(){
         var ret = [];

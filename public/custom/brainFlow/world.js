@@ -1,5 +1,5 @@
 var World = function(width, height){
-	this. camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+	this. camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 8000);
 	this.camera.position.set(0, 200, 800);
 	this.scene = new THREE.Scene();
 
@@ -18,37 +18,10 @@ var MainWorld = function(){
 	this.player = new MainPlayer(this)
 	this.player.body.position.y += 100
 
-	this.walls = []
-	for(var i=0;i<10;i++){
-		this.walls.push(new Wall(this))
-		this.walls.push(new Wall(this))
-		this.walls.push(new Wall(this))
-		this.walls.push(new Wall(this))
-		this.walls.push(new Wall(this))
-		this.walls[i*5].hitbox.position.z-=550*i;
-		this.walls[i*5].hitbox.position.y-=500;
-		this.walls[i*5+1].hitbox.position.z-=550*i;
-		this.walls[i*5+1].hitbox.position.x=200;
-		this.walls[i*5+1].hitbox.position.y-=500;
-		this.walls[i*5+1].hitbox.rotation.z = Math.PI/5;
-		this.walls[i*5+2].hitbox.position.z-=550*i;
-		this.walls[i*5+2].hitbox.position.x-=200;
-		this.walls[i*5+2].hitbox.position.y-=500;
-		this.walls[i*5+2].hitbox.rotation.z = -Math.PI/5;
-		this.walls[i*5+3].hitbox.position.z-=550*i;
-		this.walls[i*5+3].hitbox.position.x-=400;
-		this.walls[i*5+3].hitbox.position.y-=500;
-		this.walls[i*5+3].hitbox.rotation.z = Math.PI/2;
-		this.walls[i*5+4].hitbox.position.z-=550*i;
-		this.walls[i*5+4].hitbox.position.x+=400;
-		this.walls[i*5+4].hitbox.position.y-=500;
-		this.walls[i*5+4].hitbox.rotation.z = Math.PI/2;
-	}
-	// this.walls[0] = new Wall(this)
-	// this.walls[1] = new Wall(this)
-	// this.walls[1].hitbox.position.x+=200;
-	// this.walls[1].hitbox.position.y+=0;
-	// this.walls[1].hitbox.rotation.x+=30;
+	this.chunkSize = 3000;
+
+	this.chunks = {}
+
 	// Lights
 	var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
 	    color: 0xffffff
@@ -56,22 +29,78 @@ var MainWorld = function(){
 	var pointLight = new THREE.PointLight(0xffffff, 1);
 	particleLight.add(pointLight);
 	this.scene.add(particleLight);
-	this.scene.add(new THREE.AmbientLight(0x111111));
+	this.scene.add(new THREE.AmbientLight(0x222222));
 
-
+	this.lastChunk = null;
 	this.runFrame = function(){
 	    this.player.move();
-	   
+	   	var currentChunk = this.getCurrentChunk()
+	   	if(this.lastChunk == null || this.lastChunk.x != currentChunk.x || this.lastChunk.z != currentChunk.z){
+	   		this.removeAllChunks();
+	   		for(var i = -2;i<3;i++){
+	   			for(var j = -2;j<3;j++){
+	   				var coord = currentChunk.clone();
+	   				coord.x += i;
+	   				coord.z += j;
+	   				new WorldChunk(this, coord);
+	   			}
+	   		}
+	   		
+
+	   		this.lastChunk = currentChunk
+	   	}
+
 
 	    var timer = 0.0001 * Date.now();
 	    this.camera.position.copy(this.player.body.position);
-	    this.camera.position.y = 100;
+	    this.camera.position.y = this.player.body.position.y+100;
 	    this.camera.position.x += Math.sin(this.player.body.rotation.y) * 300
 	    this.camera.position.z += Math.cos(this.player.body.rotation.y) * 300
 	    this.camera.lookAt(this.player.body.position);
 	    particleLight.position.x = Math.sin(timer * 7) * 300;
 	    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
 	    particleLight.position.z = Math.cos(timer * 3) * 300;
+	}
+
+	this.removeAllChunks = function(){
+		var chunks = this.chunks;
+		$.each(chunks, function(key, val) {
+			val.dispose();
+			delete chunks[key];
+		})
+	}
+
+	this.getCurrentChunk = function(){
+		var x = Math.floor((this.player.body.position.x+(this.chunkSize/2)) / this.chunkSize);
+		var y = Math.floor((this.player.body.position.y+(this.chunkSize/2)) / this.chunkSize);
+		var z = Math.floor((this.player.body.position.z+(this.chunkSize/2)) / this.chunkSize);
+		return new THREE.Vector3(x,y,z);
+	}
+}
+
+
+
+var WorldChunk = function(world, vec){
+	world.chunks[vec.x+""+vec.z] = this;
+	this.walls = []
+	this.walls.push(new Wall(world))
+	this.walls[0]
+	this.walls[0].hitbox.position.x=vec.x*world.chunkSize;
+	this.walls[0].hitbox.position.z=vec.z*world.chunkSize;
+	this.walls[0].hitbox.scale.y = 5000;
+	
+	Math.seedrandom(vec.x+''+vec.z);
+	this.walls[0].hitbox.position.y=-2500-(Math.random()*500);
+	var dist = Math.abs(vec.z) >  Math.abs(vec.z) ? Math.abs(vec.z) : Math.abs(vec.z)
+	this.walls[0].hitbox.scale.x += Math.random()*1000;
+	this.walls[0].hitbox.scale.z += Math.random()*1000;
+	//this.walls[0].hitbox.position.y -= 500 * dist;
+	Math.seedrandom()
+
+	this.dispose = function(){
+		$.each(this.walls, function(key, val) {
+			val.world.scene.remove(val.hitbox)
+		})
 	}
 }
 

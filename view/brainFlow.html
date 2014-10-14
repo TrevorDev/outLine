@@ -1,4 +1,6 @@
 {% extends 'blankLayout.html' %} {% block body %} {% endblock %} {% block script %}
+<script src="/public/vendor/seedrandom/seedrandom.js"></script>
+
 <script src="/public/vendor/flixi/stats.js"></script>
 <script src="/public/vendor/flixi/detector.js"></script>
 <script src="/public/vendor/flixi/three.js"></script>
@@ -31,8 +33,6 @@ document.body.appendChild(renderer.domElement);
 //MAINLOOP
 FLIXI.RunEveryFrame(function() {
     world.runFrame();
-
-    
     renderer.render(world.scene, world.camera)
 })
 </script>
