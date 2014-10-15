@@ -28,8 +28,9 @@ var MainWorld = function(){
 	}));
 	var pointLight = new THREE.PointLight(0xffffff, 1);
 	particleLight.add(pointLight);
-	//this.scene.add(particleLight);
+	this.scene.add(particleLight);
 	this.scene.add(new THREE.DirectionalLight(0xffffff, 0.5 ));
+
 	this.scene.add(new THREE.AmbientLight(0x111111));
 
 	this.lastChunk = null;
