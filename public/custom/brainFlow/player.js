@@ -57,7 +57,7 @@ var MainPlayer = function(world) {
     }
 
     this.move = function() {
-        if(this.body.position.y < -700){
+        if(this.body.position.y < -3000){
             this.die();
         }
 

@@ -107,7 +107,7 @@ var WorldChunk = function(world, vec){
 	if(Math.random() > 0.2){
 		world.scene.add(this.particleLights[0]);
 	}
-	this.walls[0].hitbox.position.y=-2500-(Math.random()*500);
+	this.walls[0].hitbox.position.y=-2500-(Math.random()*2000);
 	var dist = Math.abs(vec.z) >  Math.abs(vec.z) ? Math.abs(vec.z) : Math.abs(vec.z)
 	this.walls[0].hitbox.scale.x += 1000+Math.random()*1000;
 	this.walls[0].hitbox.scale.z += 1000+Math.random()*1000;
