@@ -32,6 +32,7 @@ app.use(router(app))
 
 //PAGE ROUTES
 app.get('/', defaultPageLoad('index'))
+app.get('/fighter', defaultPageLoad('fighter'))
 app.get('/2d', defaultPageLoad('2d'))
 app.get('/3d', defaultPageLoad('3d'))
 app.get('/brainFlow', defaultPageLoad('brainFlow'))

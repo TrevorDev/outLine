@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="container-wide" ng-controller="homeCtrl">
+<center>
+	<canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>
+</center>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<script type="text/javascript">
+function homeCtrl($scope, $http) {
+	var s = new FLIXI.Screen($("#myCanvas"));
+	var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
+	img.rotation = 45 * (Math.PI/180);
+	var graphics = new PIXI.Graphics();
+	s.container.addChild(graphics);
+	s.container.addChild(img)
+
+	var controller = new FLIXI.Controller({
+        left: "left",
+        right: "right",
+        up: "up",
+        down: "down",
+        attack: "z"
+    }, {
+    	slot: 0,
+    	controls: {
+    		left: {axis: 0, value: function(val){
+    			return (val < -0.40)
+    		}},
+	        right: {axis: 0, value: function(val){
+    			return (val < 0.40)
+    		}},
+	        up: {axis: 1, value: function(val){
+    			return (val < -0.40)
+    		}},
+	        down: {axis: 1, value: function(val){
+    			return (val < 0.40)
+    		}},
+	        attack: {button: 0}
+    	}
+    });
+	 
+	//s.resize(1920,1080)
+
+	s.runAnimateLoop(function(){
+        //s.camera.zoom(1.01);
+        console.log(controller.getKey("left"))
+		img.x++;
+	});
+}
+</script>
+{% endblock %}

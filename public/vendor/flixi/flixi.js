@@ -90,7 +90,7 @@ var FLIXI = {
             return Math.sqrt(disX * disX + disY * disY)
         }
     },
-    Controller: function(keys) {
+    Controller: function(keys, gamepad) {
         var listener = new window.keypress.Listener();
         keyMap = {}
         for (var i in keys) {
@@ -105,6 +105,18 @@ var FLIXI = {
             this.keys[key][1] = true;
         };
         this.getKey = function(key) {
+            var gamepads = [];
+            if(gamepad){
+                gamepads = navigator.getGamepads();
+            }
+            if(gamepads[gamepad.slot]){
+                var controls = gamepad.controls;
+                if('button' in controls[key]){
+                    return gamepads[gamepad.slot].buttons[controls[key].button].value
+                }else if('axis' in controls[key]){
+                    return controls[key].value(gamepads[gamepad.slot].axes[controls[key].axis])
+                }
+            }
             return this.keys[key][1];
         }
         this.getKeyPressed = function(key) {
