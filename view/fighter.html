@@ -2,7 +2,7 @@
 {% block body %}
 <div class="container-wide" ng-controller="homeCtrl">
 <center>
-	<canvas id="myCanvas" width="960" height="540" style="background-color: grey;"></canvas>
+	<canvas id="myCanvas" width="960" height="540" style="background-color: white;border-style: solid;"></canvas>
 </center>
 </div>
 {% endblock %}
@@ -12,16 +12,20 @@
 <script src="/public/vendor/flixi/keypress.js"></script>
 <script src="/public/vendor/flixi/flixi.js"></script>
 
+<script src="/public/custom/fighter/lib/collision.js"></script>
+<script src="/public/custom/fighter/obj/character.js"></script>
+<script src="/public/custom/fighter/obj/wall.js"></script>
+
+
 <script type="text/javascript">
 function homeCtrl($scope, $http) {
 	var s = new FLIXI.Screen($("#myCanvas"));
-	var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
-	img.rotation = 45 * (Math.PI/180);
-	var graphics = new PIXI.Graphics();
-	s.container.addChild(graphics);
-	s.container.addChild(img)
+	var wall = new Wall(s, 200, 400, 560, 50, "/public/custom/img/blue.png");
+	// var img = FLIXI.createSprite("/public/custom/img/defaultProjImg.png", 100, 100)
+	// img.rotation = 45 * (Math.PI/180);
+	// s.container.addChild(img)
 
-	var controller = new FLIXI.Controller({
+	var controllerA = new FLIXI.Controller({
         left: "left",
         right: "right",
         up: "up",
@@ -34,24 +38,26 @@ function homeCtrl($scope, $http) {
     			return (val < -0.40)
     		}},
 	        right: {axis: 0, value: function(val){
-    			return (val < 0.40)
+    			return (val > 0.40)
     		}},
 	        up: {axis: 1, value: function(val){
     			return (val < -0.40)
     		}},
 	        down: {axis: 1, value: function(val){
-    			return (val < 0.40)
+    			return (val > 0.40)
     		}},
 	        attack: {button: 0}
     	}
     });
+
+    var player = new Character(s, 0, 0, 30, 30, "/public/custom/img/blue.png", controllerA);
 	 
 	//s.resize(1920,1080)
 
 	s.runAnimateLoop(function(){
+		player.frameAction([wall]);
         //s.camera.zoom(1.01);
-        console.log(controller.getKey("left"))
-		img.x++;
+		//img.x++;
 	});
 }
 </script>
