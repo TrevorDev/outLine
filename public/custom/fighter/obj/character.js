@@ -1,21 +1,17 @@
-function Character(scene, x, y, width, height, spritePath, controller){
+function Character(scene, stage, x, y, width, height, spritePath, controller){
 	this.setPos = function(x,y){
 		this.x = x;
 		this.y = y;
 		this.sprite.x = x;
 		this.sprite.y = y;
-		this.hitBox.x = this.hitDir == "x" ? x+width*this.xScale : x;
-		this.hitBox.y = this.hitDir == "y" ? y+height*this.yScale: y;
 	}
 	this.setDim = function(x,y){
 		this.width = x;
 		this.height = y;
 		this.sprite.width = x;
 		this.sprite.height = y;
-		this.hitBox.width = x;
-		this.hitBox.height = y;
 	}
-	this.frameAction = function(walls){
+	this.frameAction = function(){
 		if(this.controller.getKey("left")){
 			this.hitDir = "x";
 			this.xSpd-=this.moveAcc;
@@ -45,39 +41,12 @@ function Character(scene, x, y, width, height, spritePath, controller){
 		if(this.controller.getKey("down")){
 			this.hitDir = "y";
 			this.yScale = 1;
+		}
+		if(this.controller.getKey("shield")){
+			this.hitDir = "y";
+			this.yScale = 1;
 			this.diveKick();
 		}
-
-		// if(this.controller.getKey("juggle")&&!this.controller.getKey("attack")){
-		// 	this.hitBox.alpha = 1;
-		// 	this.hitOponent(function(guy){
-		// 		guy.percentDmg+= 5;
-		// 		guy.ySpd = -7;
-		// 		guy.xSpd = this.xScale*3;
-		// 	}.bind(this))
-		// }
-
-		// if(this.controller.getKey("attack")&&!this.controller.getKey("juggle")){
-		// 	this.hitOponent(function(guy){
-		// 		//guy.percentDmg+= 10;
-		// 		guy.xSpd = 0.2*this.xScale*guy.percentDmg;
-		// 	}.bind(this))
-		// }
-
-		// if(this.y > 500){
-		// 	this.deaths++;
-		// 	this.x = 500;
-		// 	this.y = 0;
-		// 	this.xSpd = 0;
-		// 	this.ySpd = 0;
-		// 	this.percentDmg=0;
-		// }
-		// this.x+=this.xSpd;
-		// this.y+=this.ySpd;
-
-		// this.setPos(this.x, this.y)
-
-		this.move(walls);
 	}
 
 	this.hitOponent = function(callback){
@@ -103,16 +72,24 @@ function Character(scene, x, y, width, height, spritePath, controller){
 		//this.xSpd = 4*this.xScale;
 	}
 
-	this.move = function(walls){
+	this.move = function(){
 		this.ySpd+= 0.3//global.currentLevel.gravity;
 		this.x+=this.xSpd;
-		this.x+=this.checkWallCollision(walls, this.xSpd, 0);
-		this.y+=this.ySpd;
-		yFix = this.checkWallCollision(walls, 0, this.ySpd);
-		if(yFix<0){
-			this.jumpCount=0;
-			this.ySpd = 0;
+		var xFix =this.checkWallCollision(this.stage.walls, this.xSpd, 0)
+		if(xFix!=0){
+			this.ySpd *= 0.8;
 		}
+		this.x+=xFix
+		this.y+=this.ySpd;
+		var yFix = this.checkWallCollision(this.stage.walls, 0, this.ySpd);
+		if(yFix!=0){
+			if(yFix<0){
+				this.jumpCount=0;
+				this.ySpd = 0;
+			}
+			this.xSpd *= 0.8;
+		}
+		
 		this.y+= yFix;
 
 		if(this.y > 500){
@@ -130,27 +107,20 @@ function Character(scene, x, y, width, height, spritePath, controller){
 	this.checkWallCollision = function(walls, xMove, yMove){
 		for (var i in walls){
 			if(delta = Collision.rect(this, walls[i], xMove, yMove)){
-				if(yMove&&delta&&(this.xSpd<this.maxTopSpeed+1&&!this.controller.getKey("right"))&&(this.xSpd>-this.maxTopSpeed-1&&!this.controller.getKey("left"))){
-					this.xSpd=0;
-				}
+				// if(yMove&&delta&&(this.xSpd<this.maxTopSpeed+1&&!this.controller.getKey("right"))&&(this.xSpd>-this.maxTopSpeed-1&&!this.controller.getKey("left"))){
+				// 	this.xSpd=0;
+				// }
 				return delta;
 			}
 		}
 		return 0;
 	}
 	
+	this.stage = stage;
 	this.sprite = new FLIXI.createSprite(spritePath, width, height);
 	this.sprite.x = x;
 	this.sprite.y = y;
 	scene.container.addChild(this.sprite)
-
-	// this.texture = new PIXI.Texture.fromImage(spritePath);
-	// this.hitboxTexture = new PIXI.Texture.fromImage("assets/colors/red.png");
-	// this.sprite = new PIXI.Sprite(this.texture);
-	this.hitBox = new FLIXI.createSprite(spritePath, width, height);
-	// this.hitBox.alpha = 0.2
-	// global.screen.container.addChild(this.sprite)
-	// global.screen.container.addChild(this.hitBox)
 	this.controller = controller;
 	this.xSpd = 0;
 	this.ySpd = 0;
