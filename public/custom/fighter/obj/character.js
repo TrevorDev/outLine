@@ -31,6 +31,14 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		if(this.controller.getKey("up")){
 			this.hitDir = "y";
 			this.yScale = -1;
+		}
+
+		if(this.controller.getKey("down")){
+			this.hitDir = "y";
+			this.yScale = 1;
+		}
+
+		if(this.controller.getKey("jump")){
 			if(!this.jumpKeyDown){
 				this.jumpKeyDown = true;
 				this.jump()
@@ -38,25 +46,18 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		}else{
 			this.jumpKeyDown = false;
 		}
-		if(this.controller.getKey("down")){
-			this.hitDir = "y";
-			this.yScale = 1;
-		}
+
 		if(this.controller.getKey("shield")){
 			this.hitDir = "y";
 			this.yScale = 1;
-			this.diveKick();
-		}
-	}
 
-	this.hitOponent = function(callback){
-		for(var i in Character.array){
-			var guy = Character.array[i];
-			if(guy!=this){
-				if(Collision.rect(this.hitBox, guy)){
-					callback(guy);
-				}
-			}
+			//divekick
+			this.ySpd = 10;
+			this.xSpd = this.maxTopSpeed*this.xScale;
+		}
+
+		if(this.controller.getKey("attack")){
+			console.log("blah")
 		}
 	}
 
@@ -65,11 +66,6 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 			this.ySpd = -this.jumpPower;
 			this.jumpCount++;
 		}
-	}
-
-	this.diveKick = function(){
-		this.ySpd = 10;
-		//this.xSpd = 4*this.xScale;
 	}
 
 	this.move = function(){
@@ -107,9 +103,6 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 	this.checkWallCollision = function(walls, xMove, yMove){
 		for (var i in walls){
 			if(delta = Collision.rect(this, walls[i], xMove, yMove)){
-				// if(yMove&&delta&&(this.xSpd<this.maxTopSpeed+1&&!this.controller.getKey("right"))&&(this.xSpd>-this.maxTopSpeed-1&&!this.controller.getKey("left"))){
-				// 	this.xSpd=0;
-				// }
 				return delta;
 			}
 		}
@@ -117,30 +110,38 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 	}
 	
 	this.stage = stage;
+	this.controller = controller;
+
+	//add sprite
 	this.sprite = new FLIXI.createSprite(spritePath, width, height);
 	this.sprite.x = x;
 	this.sprite.y = y;
 	scene.container.addChild(this.sprite)
-	this.controller = controller;
-	this.xSpd = 0;
-	this.ySpd = 0;
-	this.x = x;
-	this.y = y;
+	
+	
+	//directions
 	this.xScale = 1;
 	this.yScale = 1;
 	this.hitDir = "x";
-	this.jumpCount = 0;
-	this.jumpKeyDown = false;
-	this.percentDmg = 0;
-	this.deaths = 0;
 
-	this.maxJumps = 3;
+
+
+	//Stats
+	this.maxJumps = 2;
 	this.jumpPower = 10;
-	this.width;
-	this.height;
 	this.setDim(width,height);
+	this.setPos(x, y)
 	this.moveAcc = 1;
 	this.maxTopSpeed = 5;
+	this.xSpd = 0;
+	this.ySpd = 0;
+	this.jumpCount = 0;
+	this.jumpKeyDown = false;
+	this.attacking = false;
+
+	//stock information
+	this.percentDmg = 0;
+	this.deaths = 0;
 
 	Character.array.push(this)
 }

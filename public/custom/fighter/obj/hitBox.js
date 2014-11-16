@@ -1,4 +1,4 @@
-function Wall(scene, x, y, width, height, spritePath){
+function HitBox(scene, x, y, width, height, onPlayer, framesAlive){
 	this.setPos = function(x,y){
 		this.x = x;
 		this.y = y;
@@ -11,8 +11,12 @@ function Wall(scene, x, y, width, height, spritePath){
 		this.sprite.width = x;
 		this.sprite.height = y;
 	}
-	this.sprite = new FLIXI.createSprite(spritePath, width, height);
+	this.sprite = new FLIXI.createSprite("/public/custom/img/blue.png", width, height);
 	scene.container.addChild(this.sprite)
 	this.setPos(x,y)
 	this.setDim(width,height);
+
+	//settings
+	this.onPlayer = onPlayer
+	this.framesAlive = framesAlive
 }
