@@ -1,4 +1,5 @@
 function Wall(scene, x, y, width, height, spritePath){
+	Rect.call(this, x, y, width, height)
 	this.setPos = function(x,y){
 		this.x = x;
 		this.y = y;

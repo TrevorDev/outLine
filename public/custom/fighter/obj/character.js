@@ -1,4 +1,6 @@
 function Character(scene, stage, x, y, width, height, spritePath, controller){
+	Rect.call(this, x, y, width, height)
+
 	this.setPos = function(x,y){
 		this.x = x;
 		this.y = y;
@@ -57,7 +59,19 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		}
 
 		if(this.controller.getKey("attack")){
-			console.log("blah")
+			if(!this.attacking){
+				console.log("blah")
+				this.attacking=true
+				var center = this.getCenter();
+				if(this.controller.getKey("up")){
+					this.hitboxes.push(new Hitbox(this.scene,center.x, center.y-this.height/2-50, 50, 50, true, 10,20,20))
+				}else if(this.controller.getKey("down")){
+					this.hitboxes.push(new Hitbox(this.scene,center.x, center.y+this.height/2, 50, 50, true, 10,20,20))
+				}else{
+					this.hitboxes.push(new Hitbox(this.scene,center.x+this.xScale*this.width/2, center.y, 50, 20, true, 10,10,10))
+				}
+				
+			}
 		}
 	}
 
@@ -69,6 +83,7 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 	}
 
 	this.move = function(){
+		var oldPos = {x:this.x,y:this.y}
 		this.ySpd+= 0.3//global.currentLevel.gravity;
 		this.x+=this.xSpd;
 		var xFix =this.checkWallCollision(this.stage.walls, this.xSpd, 0)
@@ -96,8 +111,34 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 			this.ySpd = 0;
 			this.percentDmg=0;
 		}
-
 		this.setPos(this.x, this.y)
+		var diff = {x:this.x - oldPos.x, y:this.y - oldPos.y}
+		for(var i in this.hitboxes){
+			var hb = this.hitboxes[i]
+			hb.frame++;
+			if(hb.attachedToPlayer){
+				hb.setPos(hb.x+diff.x, hb.y+diff.y)
+			}
+			if(hb.frame > hb.preFrames && hb.frame < hb.preFrames+hb.activeFrames){
+				hb.sprite.alpha = 0.8
+				hb.active = true
+			}else{
+				hb.sprite.alpha = 0.05
+				hb.active = false
+			}
+		}
+		var self = this;
+		this.hitboxes = $.grep(this.hitboxes, function(hb){
+			if(hb.frame > hb.preFrames+hb.activeFrames+hb.postFrames){
+				hb.scene.container.removeChild(hb.sprite)
+				self.attacking = false;
+				return false
+			}else{
+
+				return true
+			}	
+		})
+		
 	}
 
 	this.checkWallCollision = function(walls, xMove, yMove){
@@ -108,16 +149,17 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		}
 		return 0;
 	}
-	
+
 	this.stage = stage;
+	this.scene = scene;
 	this.controller = controller;
 
 	//add sprite
 	this.sprite = new FLIXI.createSprite(spritePath, width, height);
-	this.sprite.x = x;
-	this.sprite.y = y;
+	this.setPos(x,y)
 	scene.container.addChild(this.sprite)
 	
+	this.hitboxes = []
 	
 	//directions
 	this.xScale = 1;
