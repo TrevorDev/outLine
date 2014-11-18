@@ -64,11 +64,61 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 				this.attacking=true
 				var center = this.getCenter();
 				if(this.controller.getKey("up")){
-					this.hitboxes.push(new Hitbox(this.scene,center.x, center.y-this.height/2-50, 50, 50, true, 10,20,20))
+					this.hitboxes.push(new Hitbox({
+						scene: this.scene,
+						x: center.x,
+						y: center.y-this.height/2-50,
+						width: 50,
+						height: 50,
+						attachedToPlayer: true,
+						preFrames: 10,
+						activeFrames: 20,
+						postFrames: 20,
+						dmg: 30,
+						hitDir: {x: 0, y: -15}
+					}))
 				}else if(this.controller.getKey("down")){
-					this.hitboxes.push(new Hitbox(this.scene,center.x, center.y+this.height/2, 50, 50, true, 10,20,20))
+					this.hitboxes.push(new Hitbox({
+						scene: this.scene,
+						x: center.x-20,
+						y: center.y+this.height/2,
+						width: 20,
+						height: 50,
+						attachedToPlayer: true,
+						preFrames: 10,
+						activeFrames: 20,
+						postFrames: 20,
+						dmg: 15,
+						hitDir: {x: -10, y: -8}
+					}))
+
+					this.hitboxes.push(new Hitbox({
+						scene: this.scene,
+						x: center.x+20,
+						y: center.y+this.height/2,
+						width: 20,
+						height: 50,
+						attachedToPlayer: true,
+						preFrames: 10,
+						activeFrames: 20,
+						postFrames: 20,
+						dmg: 15,
+						hitDir: {x: 10, y: -8}
+					}))
 				}else{
-					this.hitboxes.push(new Hitbox(this.scene,center.x+this.xScale*this.width/2, center.y, 50, 20, true, 10,10,10))
+					this.hitboxes.push(new Hitbox({
+						scene: this.scene,
+						x: center.x+this.xScale*this.width/2,
+						y: center.y,
+						width: 50,
+						height: 20,
+						attachedToPlayer: true,
+						preFrames: 5,
+						activeFrames: 5,
+						postFrames: 5,
+						dmg: 2,
+						hitDir: {x: this.xScale*5, y: 2}
+					}))
 				}
 				
 			}
@@ -112,6 +162,8 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 			this.percentDmg=0;
 		}
 		this.setPos(this.x, this.y)
+
+		//HITBOX HANDLING
 		var diff = {x:this.x - oldPos.x, y:this.y - oldPos.y}
 		for(var i in this.hitboxes){
 			var hb = this.hitboxes[i]
@@ -138,6 +190,22 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 				return true
 			}	
 		})
+
+		//CHECK IF HIT FROM OTHER HITBOXES
+		for(var i in this.stage.players){
+			player = this.stage.players[i]
+			if(player != this){
+				for(var j in player.hitboxes){
+					var hb = player.hitboxes[j]
+					if(hb.active && hb.objectsHit.indexOf(this) == -1 && Collision.rect(this, hb)){
+						this.percentDmg += hb.dmg
+						this.xSpd += hb.hitDir.x*((this.percentDmg+this.baseDmg)/this.dmgDiv);
+						this.ySpd += hb.hitDir.y*((this.percentDmg+this.baseDmg)/this.dmgDiv);
+						hb.objectsHit.push(this)
+					}
+				}
+			}
+		}
 		
 	}
 
@@ -183,6 +251,8 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 
 	//stock information
 	this.percentDmg = 0;
+	this.baseDmg = 50;
+	this.dmgDiv = 200;
 	this.deaths = 0;
 
 	Character.array.push(this)

@@ -1,5 +1,15 @@
-function Hitbox(scene, x, y, width, height, attachedToPlayer, preFrames, activeFrames, postFrames){
-	Rect.call(this, x, y, width, height)
+function Hitbox(params){
+	// {scene,
+	//  x,
+	//  y,
+	//  width,
+	//  height,
+	//  attachedToPlayer,
+	//  preFrames,
+	//  activeFrames,
+	//  postFrames
+	// }
+	Rect.call(this, params.x, params.y, params.width, params.height)
 
 	this.setPos = function(x,y){
 		this.x = x;
@@ -13,18 +23,21 @@ function Hitbox(scene, x, y, width, height, attachedToPlayer, preFrames, activeF
 		this.sprite.width = x;
 		this.sprite.height = y;
 	}
-	this.sprite = new FLIXI.createSprite("/public/custom/img/red.png", width, height);
+	this.sprite = new FLIXI.createSprite("/public/custom/img/red.png", params.width, params.height);
 	this.sprite.alpha = 0.05;
-	scene.container.addChild(this.sprite)
-	this.setPos(x-this.width/2,y-this.height/2)
-	this.setDim(width,height);
+	params.scene.container.addChild(this.sprite)
+	this.setPos(params.x-this.width/2,params.y-this.height/2)
+	this.setDim(params.width,params.height);
 
 	//settings
-	this.scene = scene
-	this.attachedToPlayer = attachedToPlayer
-	this.activeFrames = activeFrames
-	this.preFrames = preFrames
-	this.postFrames = postFrames
+	this.scene = params.scene
+	this.attachedToPlayer = params.attachedToPlayer
+	this.activeFrames = params.activeFrames
+	this.preFrames = params.preFrames
+	this.postFrames = params.postFrames
+	this.dmg = params.dmg
+	this.hitDir = params.hitDir
+	this.objectsHit = []
 	this.active = false
 	this.frame = 0
 }
