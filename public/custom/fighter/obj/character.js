@@ -54,71 +54,124 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 			this.yScale = 1;
 
 			//divekick
-			this.ySpd = 10;
-			this.xSpd = this.maxTopSpeed*this.xScale;
+			if(!this.grounded){
+				this.ySpd = 10;
+				this.xSpd = this.maxTopSpeed*this.xScale;
+			}
+			
 		}
 
 		if(this.controller.getKey("attack")){
 			if(!this.attacking){
-				console.log("blah")
 				this.attacking=true
 				var center = this.getCenter();
 				if(this.controller.getKey("up")){
-					this.hitboxes.push(new Hitbox({
-						scene: this.scene,
-						x: center.x,
-						y: center.y-this.height/2-50,
-						width: 50,
-						height: 50,
-						attachedToPlayer: true,
-						preFrames: 10,
-						activeFrames: 20,
-						postFrames: 20,
-						dmg: 30,
-						hitDir: {x: 0, y: -15}
-					}))
+					if(this.grounded){
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x,
+							y: center.y,
+							width: 60,
+							height: 60,
+							attachedToPlayer: true,
+							preFrames: 3,
+							activeFrames: 20,
+							postFrames: 20,
+							dmg: 30,
+							hitDir: {x: 0, y: -15}
+						}))
+					}else{
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x,
+							y: center.y-this.height/2-50,
+							width: 50,
+							height: 50,
+							attachedToPlayer: true,
+							preFrames: 10,
+							activeFrames: 20,
+							postFrames: 20,
+							dmg: 30,
+							hitDir: {x: 0, y: -15}
+						}))
+					}
 				}else if(this.controller.getKey("down")){
-					this.hitboxes.push(new Hitbox({
-						scene: this.scene,
-						x: center.x-20,
-						y: center.y+this.height/2,
-						width: 20,
-						height: 50,
-						attachedToPlayer: true,
-						preFrames: 10,
-						activeFrames: 20,
-						postFrames: 20,
-						dmg: 15,
-						hitDir: {x: -10, y: -8}
-					}))
+					if(this.grounded){
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x-20,
+							y: center.y+this.height/2,
+							width: 20,
+							height: 50,
+							attachedToPlayer: true,
+							preFrames: 10,
+							activeFrames: 20,
+							postFrames: 20,
+							dmg: 15,
+							hitDir: {x: -10, y: -8}
+						}))
 
-					this.hitboxes.push(new Hitbox({
-						scene: this.scene,
-						x: center.x+20,
-						y: center.y+this.height/2,
-						width: 20,
-						height: 50,
-						attachedToPlayer: true,
-						preFrames: 10,
-						activeFrames: 20,
-						postFrames: 20,
-						dmg: 15,
-						hitDir: {x: 10, y: -8}
-					}))
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x+20,
+							y: center.y+this.height/2,
+							width: 20,
+							height: 50,
+							attachedToPlayer: true,
+							preFrames: 10,
+							activeFrames: 20,
+							postFrames: 20,
+							dmg: 15,
+							hitDir: {x: 10, y: -8}
+						}))
+					}else{
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x,
+							y: center.y+this.height/2,
+							width: 50,
+							height: 30,
+							attachedToPlayer: true,
+							preFrames: 10,
+							activeFrames: 20,
+							postFrames: 20,
+							dmg: 30,
+							hitDir: {x: 0, y: 20}
+						}))
+					}
+					
 				}else{
-					this.hitboxes.push(new Hitbox({
-						scene: this.scene,
-						x: center.x+this.xScale*this.width/2,
-						y: center.y,
-						width: 50,
-						height: 20,
-						attachedToPlayer: true,
-						preFrames: 5,
-						activeFrames: 5,
-						postFrames: 5,
-						dmg: 2,
-						hitDir: {x: this.xScale*5, y: 2}
-					}))
+					//JAB
+					if(this.grounded){
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x+this.xScale*(this.width/2+10),
+							y: center.y,
+							width: 60,
+							height: 20,
+							attachedToPlayer: true,
+							preFrames: 0,
+							activeFrames: 5,
+							postFrames: 0,
+							dmg: 2,
+							hitDir: {x: this.xScale*5, y: 2}
+						}))
+					}else{
+						this.hitboxes.push(new Hitbox({
+							scene: this.scene,
+							x: center.x+this.xScale*(this.width/2+10),
+							y: center.y,
+							width: 30,
+							height: 40,
+							attachedToPlayer: true,
+							preFrames: 5,
+							activeFrames: 5,
+							postFrames: 40,
+							dmg: 2,
+							hitDir: {x: this.xScale*20, y: 2}
+						}))
+					}
+					
 				}
 				
 			}
@@ -143,8 +196,10 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		this.x+=xFix
 		this.y+=this.ySpd;
 		var yFix = this.checkWallCollision(this.stage.walls, 0, this.ySpd);
+		this.grounded = false
 		if(yFix!=0){
 			if(yFix<0){
+				this.grounded = true
 				this.jumpCount=0;
 				this.ySpd = 0;
 			}
@@ -153,7 +208,7 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 		
 		this.y+= yFix;
 
-		if(this.y > 500){
+		if(this.y > 800){
 			this.deaths++;
 			this.x = 500;
 			this.y = 0;
@@ -199,8 +254,8 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 					var hb = player.hitboxes[j]
 					if(hb.active && hb.objectsHit.indexOf(this) == -1 && Collision.rect(this, hb)){
 						this.percentDmg += hb.dmg
-						this.xSpd += hb.hitDir.x*((this.percentDmg+this.baseDmg)/this.dmgDiv);
-						this.ySpd += hb.hitDir.y*((this.percentDmg+this.baseDmg)/this.dmgDiv);
+						this.xSpd = hb.hitDir.x*((this.percentDmg+this.baseDmg)/this.dmgDiv);
+						this.ySpd = hb.hitDir.y*((this.percentDmg+this.baseDmg)/this.dmgDiv);
 						hb.objectsHit.push(this)
 					}
 				}
@@ -248,6 +303,7 @@ function Character(scene, stage, x, y, width, height, spritePath, controller){
 	this.jumpCount = 0;
 	this.jumpKeyDown = false;
 	this.attacking = false;
+	this.grounded = false
 
 	//stock information
 	this.percentDmg = 0;

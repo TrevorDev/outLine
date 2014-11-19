@@ -26,7 +26,7 @@
 function homeCtrl($scope, $http) {
     var gameScreen = new FLIXI.Screen($("#myCanvas"));
     var stage = Stages.finalDestination(gameScreen);
-
+    gameScreen.resize(1366,768)
 
     // var text = new PIXI.Text("Pixi.js can has text!", {font:"15px Arial", fill:"black"});
     // text.y += 50;
