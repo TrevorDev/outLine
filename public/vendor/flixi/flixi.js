@@ -16,11 +16,19 @@ var FLIXI = {
             this.renderer.render(this.stage);
         }
 
-        this.runAnimateLoop = function(x) {
+        this.runAnimateLoop = function(x, RenderFpsMax) {
             var scrn = this;
+            var lastDate = new Date()
             FLIXI.RunEveryFrame(function() {
+                var curDate = new Date()
+                var diff = curDate - lastDate
+                console.log(diff)
                 x();
-                scrn.render();
+                if(RenderFpsMax == null || diff > 1000/RenderFpsMax){
+                   scrn.render();
+                   lastDate = new Date()
+                }
+                
             })
         }
 
