@@ -19,18 +19,10 @@ var MainWorld = function(){
 	this.player.body.position.y += 100
 
 	this.chunkSize = 3000;
-
+	this.chunkDrawDist = 2;
 	this.chunks = {}
 
-	// Lights
-	var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
-	    color: 0xffffff
-	}));
-	var pointLight = new THREE.PointLight(0x777777, 1);
-	particleLight.add(pointLight);
-	this.scene.add(particleLight);
-	//this.scene.add(new THREE.DirectionalLight(0xffffff, 0.5 ));
-
+	//Natural light
 	this.scene.add(new THREE.AmbientLight(0x777777));
 
 	this.lastChunk = null;
@@ -39,8 +31,8 @@ var MainWorld = function(){
 	   	var currentChunk = this.getCurrentChunk()
 	   	if(this.lastChunk == null || this.lastChunk.x != currentChunk.x || this.lastChunk.z != currentChunk.z){
 	   		this.removeAllChunks();
-	   		for(var i = -2;i<3;i++){
-	   			for(var j = -2;j<3;j++){
+	   		for(var i = -this.chunkDrawDist;i<=this.chunkDrawDist;i++){
+	   			for(var j = -this.chunkDrawDist;j<=this.chunkDrawDist;j++){
 	   				var coord = currentChunk.clone();
 	   				coord.x += i;
 	   				coord.z += j;
@@ -59,9 +51,6 @@ var MainWorld = function(){
 	    this.camera.position.x += Math.sin(this.player.body.rotation.y) * 300
 	    this.camera.position.z += Math.cos(this.player.body.rotation.y) * 300
 	    this.camera.lookAt(this.player.body.position);
-	    particleLight.position.x = Math.sin(timer * 7) * 300;
-	    particleLight.position.y = Math.cos(timer * 5) * 400 + 450;
-	    particleLight.position.z = Math.cos(timer * 3) * 300;
 	}
 
 	this.removeAllChunks = function(){
@@ -90,7 +79,7 @@ var WorldChunk = function(world, vec){
 	//lighting
 	this.particleLights = []
 	this.particleLights.push(new THREE.Mesh(new THREE.SphereGeometry(3,3,3), new THREE.MeshBasicMaterial({color: 0xffffff})))
-	var pointLight = new THREE.PointLight(0xFFFFFF, 0.4, 3000);
+	var pointLight = new THREE.PointLight(0xFFFFFF, 0.6, 3000);
 	this.particleLights[0].add(pointLight);
 	this.particleLights[0].position.x=vec.x*world.chunkSize+500; 
 	this.particleLights[0].position.z=vec.z*world.chunkSize+100; 

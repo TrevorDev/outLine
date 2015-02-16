@@ -101,6 +101,7 @@ var MainPlayer = function(world) {
         var from = this.getFeet().clone();
         this.body.position.add(this.spd)
         var to = this.getFeet().clone();
+        
         var newPos = this.collisionAdjust(from, to);
         if(newPos){
              //console.log("hit")
