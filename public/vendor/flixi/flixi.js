@@ -118,7 +118,7 @@ var FLIXI = {
 
                 gamepads = navigator.getGamepads();
             }
-            if(gamepads[gamepad.slot]){
+            if(gamepad && gamepads[gamepad.slot]){
                 var controls = gamepad.controls;
                 if('button' in controls[key]){
                     return gamepads[gamepad.slot].buttons[controls[key].button].value

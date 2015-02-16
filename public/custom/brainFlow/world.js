@@ -26,12 +26,12 @@ var MainWorld = function(){
 	var particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({
 	    color: 0xffffff
 	}));
-	var pointLight = new THREE.PointLight(0xffffff, 1);
+	var pointLight = new THREE.PointLight(0x777777, 1);
 	particleLight.add(pointLight);
 	this.scene.add(particleLight);
-	this.scene.add(new THREE.DirectionalLight(0xffffff, 0.5 ));
+	//this.scene.add(new THREE.DirectionalLight(0xffffff, 0.5 ));
 
-	this.scene.add(new THREE.AmbientLight(0x111111));
+	this.scene.add(new THREE.AmbientLight(0x777777));
 
 	this.lastChunk = null;
 	this.runFrame = function(){
