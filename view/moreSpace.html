@@ -1,0 +1,44 @@
+{% extends 'blankLayout.html' %} {% block body %} {% endblock %} {% block script %}
+<script src="/public/vendor/seedrandom/seedrandom.js"></script>
+
+<script src="/public/vendor/flixi/stats.js"></script>
+<script src="/public/vendor/flixi/detector.js"></script>
+<script src="/public/vendor/flixi/three.js"></script>
+<script src="/public/vendor/flixi/pixi.js"></script>
+<script src="/public/vendor/flixi/keypress.js"></script>
+<script src="/public/vendor/flixi/flixi.js"></script>
+
+<!-- <script src="/public/custom/moreSpace/collision.js"></script>
+<script src="/public/custom/moreSpace/materials.js"></script>
+<script src="/public/custom/moreSpace/player.js"></script>
+<script src="/public/custom/moreSpace/wall.js"></script> -->
+<script src="/public/custom/moreSpace/world.js"></script>
+
+<script type="text/javascript">
+
+if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+var world = new MainWorld();
+
+//renderer
+renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
+renderer.setClearColor( 0x66CCFF );
+renderer.setPixelRatio( window.devicePixelRatio );
+
+renderer.setSize(window.innerWidth, window.innerHeight - 5);
+
+
+document.body.appendChild(renderer.domElement);
+
+//MAINLOOP
+FLIXI.RunEveryFrame(function() {
+	var timer = 0.0001 * Date.now();
+	world.camera.position.x--;
+    renderer.render(world.scene, world.camera)
+})
+
+
+</script>
+{% endblock %}
