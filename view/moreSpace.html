@@ -25,7 +25,7 @@ var world = new MainWorld();
 renderer = new THREE.WebGLRenderer({
     antialias: true
 });
-renderer.setClearColor( 0x66CCFF );
+renderer.setClearColor( 0x323D47 );
 renderer.setPixelRatio( window.devicePixelRatio );
 
 renderer.setSize(window.innerWidth, window.innerHeight - 5);
@@ -43,7 +43,7 @@ FLIXI.RunEveryFrame(function() {
 	world.runFrame();
 	var timer = 0.0001 * Date.now();
 	//world.camera.position.x--;
-	
+
     renderer.render(world.scene, world.camera)
     stats.update();
 })

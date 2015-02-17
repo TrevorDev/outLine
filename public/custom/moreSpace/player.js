@@ -31,7 +31,8 @@ var MainPlayer = function(world) {
         right: "right",
         up: "up",
         down: "down",
-        attack: "z"
+        attack: "z",
+        newWall: "a"
     });
 
     this.die = function(){
@@ -80,6 +81,14 @@ var MainPlayer = function(world) {
             this.spd.y =  this.jumpPower;
         }
         this.shotCooldown--;
+
+        if (this.controller.getKey("newWall")) {
+            this.controller.keyUp("newWall");
+            w = new Wall(this.world)
+            w.hitbox.position.copy(this.body.position);
+            w.hitbox.position.y-=30;
+            this.world.walls.push(w);
+        }
 
         var from = this.getFeet().clone();
         this.body.position.add(this.spd)
