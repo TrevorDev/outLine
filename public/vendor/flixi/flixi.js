@@ -8,6 +8,8 @@ var FLIXI = {
     },
     Screen: function(canvas) {
         this.renderer = PIXI.autoDetectRenderer(canvas.width(), canvas.height(), canvas[0], true);
+        this.width = canvas.width()
+        this.height = canvas.height()
         this.stage = new PIXI.Stage();
         this.container = new PIXI.DisplayObjectContainer(); //new PIXI.SpriteBatch();
         this.stage.addChild(this.container);
@@ -94,7 +96,8 @@ var FLIXI = {
         var listener = new window.keypress.Listener();
         keyMap = {}
         for (var i in keys) {
-            keyMap[i] = [keys[i], false]
+                        //key     isDown  wasPressed
+            keyMap[i] = [keys[i], false, false]
         }
 
         this.keys = keyMap;
@@ -103,6 +106,7 @@ var FLIXI = {
         };
         this.keyDown = function(key) {
             this.keys[key][1] = true;
+            this.keys[key][2] = true;
         };
         this.getKey = function(key) {
             var gamepads = [];
@@ -121,8 +125,8 @@ var FLIXI = {
             return this.keys[key][1];
         }
         this.getKeyPressed = function(key) {
-            var ret = this.keys[key][1];
-            this.keys[key][1] = false;
+            var ret = this.keys[key][2];
+            this.keys[key][2] = false;
             return ret;
         }
 
