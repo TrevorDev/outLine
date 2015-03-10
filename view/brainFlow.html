@@ -21,19 +21,32 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 var world = new MainWorld();
 
 //renderer
-var container = document.createElement('div');
-document.body.appendChild(container);
 renderer = new THREE.WebGLRenderer({
     antialias: true
 });
+renderer.setClearColor( 0x66CCFF );
 renderer.setSize(window.innerWidth, window.innerHeight - 5);
 document.body.appendChild(renderer.domElement);
 
+var timerRun = function(name, func){
+	var start = new Date().getTime();
 
+	func();
+
+	var end = new Date().getTime();
+	var time = end - start;
+	console.log(name+' Execution time: ' + time);
+}
 //MAINLOOP
 FLIXI.RunEveryFrame(function() {
-    world.runFrame();
+    
+    	world.runFrame();
+    
+timerRun("world", function(){
     renderer.render(world.scene, world.camera)
 })
+})
+
+
 </script>
 {% endblock %}

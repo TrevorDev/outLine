@@ -2,27 +2,14 @@ var Player = function(world) {
     this.world = world;
     this.body = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), MATERIALS.DEFAULT)
     this.world.scene.add(this.body)
-    this.healthBar = new THREE.Mesh(new THREE.SphereGeometry(10, 10, 10), MATERIALS.RED)
-    this.healthBar.position.y = 20
-    this.health = 100;
     this.gravity = 0.2;
-    //this.body.add(this.healthBar);
     this.body.position.y = 20
     this.grounded = false;
     this.spd = new THREE.Vector3(0, 0, 0);
     this.moveAcc = 1;
     this.maxSpd = 30;
-    this.jumpPower = 15;
-    this.shotCooldown = 0;
-    this.shotCooldownLimit = 40;
-    this.projectiles = {}
+    this.jumpPower = 8;
     this.move = function() {}
-    this.takeHit = function(dmg){
-        this.health-=dmg;
-        this.healthBar.scale.x -= dmg/100
-        this.healthBar.scale.y -= dmg/100
-        this.healthBar.scale.z -= dmg/100
-    }
 
     this.getFeet = function(){
         var ret = this.body.position.clone();
@@ -34,10 +21,6 @@ var Player = function(world) {
         this.body.position.copy(vec3)
         this.body.position.y+=10;
     }
-
-    this.isDead = function(){
-        return (this.health <= 0)
-    }
 }
 
 var MainPlayer = function(world) {
@@ -48,7 +31,8 @@ var MainPlayer = function(world) {
         right: "right",
         up: "up",
         down: "down",
-        attack: "z"
+        attack: "z",
+        newWall: "a"
     });
 
     this.die = function(){
@@ -93,10 +77,18 @@ var MainPlayer = function(world) {
 
         this.spd.y-=this.gravity;
         //ACTIONS
-        if (this.controller.getKey("attack") && this.shotCooldown <= 0 && this.grounded) {
+        if (this.controller.getKey("attack") && this.grounded) {
             this.spd.y =  this.jumpPower;
         }
         this.shotCooldown--;
+
+        if (this.controller.getKey("newWall")) {
+            this.controller.keyUp("newWall");
+            w = new Wall(this.world)
+            w.hitbox.position.copy(this.body.position);
+            w.hitbox.position.y-=30;
+            this.world.walls.push(w);
+        }
 
         var from = this.getFeet().clone();
         this.body.position.add(this.spd)
@@ -118,10 +110,8 @@ var MainPlayer = function(world) {
     this.collisionAdjust = function(from, to){
 
          var wallFaces = []
-         $.each(this.world.chunks, function(key, val) {
-            $.each(val.walls, function(idx, elem) {
-                wallFaces = wallFaces.concat(elem.getFaces());
-            });
+        $.each(this.world.walls, function(idx, elem) {
+            wallFaces = wallFaces.concat(elem.getFaces());
         });
         
         var closestCollision = null

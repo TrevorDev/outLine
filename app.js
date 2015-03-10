@@ -37,6 +37,7 @@ app.get('/bomb', defaultPageLoad('bomb'))
 app.get('/2d', defaultPageLoad('2d'))
 app.get('/3d', defaultPageLoad('3d'))
 app.get('/brainFlow', defaultPageLoad('brainFlow'))
+app.get('/moreSpace', defaultPageLoad('moreSpace'))
 app.get(/\/public\/*/, serve('.'))
 
 //API ROUTES
