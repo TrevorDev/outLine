@@ -24,7 +24,7 @@ var FLIXI = {
             FLIXI.RunEveryFrame(function() {
                 var curDate = new Date()
                 var diff = curDate - lastDate
-                console.log(diff)
+                //console.log(diff)
                 x();
                 if(RenderFpsMax == null || diff > 1000/RenderFpsMax){
                    scrn.render();

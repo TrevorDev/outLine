@@ -27,30 +27,17 @@
 
 <script type="text/javascript">
 function homeCtrl($scope, $http) {
-    var gameScreen = new FLIXI.Screen($("#myCanvas"));
-    gameScreen.resize(1366/2,768/2)
-    var room = new Room(gameScreen)
-    var playerA = new Player(CONTROLLER.P1);
-    playerA.joinRoom(room)
+  var gameScreen = new FLIXI.Screen($("#myCanvas"));
+  gameScreen.resize(1366/2,768/2)
 
+  var room = new Room(gameScreen)
+  var playerA = new Player(CONTROLLER.P1);
 
-
-
-	
-
-    // var playerA = new Character(gameScreen, stage, 300, 0, 30, 30, "/public/custom/img/blue.png", CONTROLLER.P1);
-    // var playerB = new Character(gameScreen, stage, 960-300-30, 0, 30, 30, "/public/custom/img/blue.png", CONTROLLER.P2);
-
+  playerA.joinRoom(room)
 
 	gameScreen.runAnimateLoop(function(){
 		playerA.preFrameAct();
-        playerA.postFrameAct();
-  //       playerB.frameAction();
-
-  //       playerA.move();
-  //       playerB.move();
-  //       //gameScreen.camera.zoom(1.01);
-		// //img.x++;
+    playerA.postFrameAct();
 	});
 }
 </script>

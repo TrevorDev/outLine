@@ -5,7 +5,7 @@ CONTROLLER.P1 = new FLIXI.Controller({
         right: "right",
         up: "up",
         down: "down",
-        attack: "/",
+        attack: "z",
         special: ".",
         grab: ",",
         shield: "m",

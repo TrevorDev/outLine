@@ -42,6 +42,12 @@ function Player(controller){
 				spd.y = maxSpd
 			}
 		}
+
+		if(controller.getKeyPressed("attack")){
+			console.log(this.getGridPos())
+			var b = new Block()
+			room.getLevel().placeOnGrid(this.getGridPos(), b)
+		}
 		
 	}
 
@@ -55,10 +61,24 @@ function Player(controller){
 		sprite.y = pos.y
 	}
 
+	this.setDim = function(p){
+		dim.copy(p)
+		sprite.width = dim.x
+		sprite.height = dim.y
+	}
+
 	this.joinRoom = function(r){
 		room = r
 		room.addPlayer(this)
 		return this
+	}
+
+	this.getCenterPos = function(){
+		return pos.clone().add(dim.clone().multiplyScalar(0.5))
+	}
+
+	this.getGridPos = function(){
+		return room.getLevel().globalPosToGrid(this.getCenterPos());
 	}
 
 	this.getId = function(){
